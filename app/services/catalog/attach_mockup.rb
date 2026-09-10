@@ -10,6 +10,9 @@ module Catalog
 
     def call
       return success(attached: false) if @file.blank?
+      # A form submitted without multipart delivers the filename as a String, which used to
+      # blow up deep inside the image probe. Fail with something a human can act on.
+      return failure([ I18n.t("admin.templates.mockup_not_a_file") ], code: :invalid) unless @file.respond_to?(:tempfile)
 
       require "vips"
       image = Vips::Image.new_from_file(@file.tempfile.path, access: :sequential)

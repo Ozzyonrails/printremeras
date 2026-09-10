@@ -1,4 +1,4 @@
-<%= form_with model: [ :admin, template ] do |f| %>
+<%= form_with model: [ :admin, template ], html: { multipart: true } do |f| %>
   <% if template.errors.any? %><div class="flash flash-alert"><%= template.errors.full_messages.join(", ") %></div><% end %>
   <% loc = I18n.default_locale.to_s %>
 

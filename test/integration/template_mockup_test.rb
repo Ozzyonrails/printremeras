@@ -6,6 +6,25 @@ class TemplateMockupTest < ActionDispatch::IntegrationTest
     post "/admin/session", params: { email: admin.email, password: "supersecret123" }
   end
 
+  test "every form that takes a file is multipart" do
+    # Integration tests post params directly, so a missing enctype slips past them: the
+    # browser then sends the filename as a plain string and the upload blows up.
+    get "/admin/templates/new"
+    assert_match(/<form[^>]*enctype="multipart\/form-data"/, response.body,
+                 "the creation form takes a photo, so it must be multipart")
+
+    template = create_template
+    get "/admin/templates/#{template.id}"
+    assert_match(/<form[^>]*enctype="multipart\/form-data"/, response.body)
+  end
+
+  test "a filename arriving instead of a file is reported, not a 500" do
+    template = create_template
+    result = Catalog::AttachMockup.call(print_area: template.front_area, file: "IMG_0047.jpeg")
+    assert result.failure?
+    assert_equal I18n.t("admin.templates.mockup_not_a_file"), result.errors.first
+  end
+
   test "a garment can be created with its photo in one step" do
     file = png_file(900, 1100, name: "mockup.png")
     post "/admin/templates", params: {

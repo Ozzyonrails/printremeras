@@ -393,6 +393,7 @@ es:
       mockup_front: "Foto de la prenda (frente)"
       mockup_front_hint: "Opcional acá: se puede subir después. El área de impresión se dibuja sobre esta foto en la página de la prenda."
       mockup_unreadable: "No pudimos leer la imagen: %{message}"
+      mockup_not_a_file: "El archivo no llegó completo. Volvé a elegir la imagen y guardá otra vez."
       color_name: "Nombre del color (opcional)"
       color_name_placeholder: "Melange, arena, …"
       color_name_hint: "Dejalo vacío y se usa el nombre del color elegido arriba."
