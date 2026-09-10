@@ -20,7 +20,7 @@ gem "bootsnap", require: false
 gem "thruster", require: false
 
 # Storage & images
-gem "image_processing", "~> 1.2"
+gem "image_processing", "~> 2.1"
 # Loaded on demand: initialising libvips (and glib's threads) at boot makes forked
 # children (Solid Queue) crash on macOS. Renderers require "vips" themselves.
 gem "ruby-vips", require: false
