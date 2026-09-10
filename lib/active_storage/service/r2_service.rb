@@ -23,5 +23,17 @@ module ActiveStorage
       super(**R2_CLIENT_DEFAULTS.merge(options))
       upload_options.delete(:acl)
     end
+
+    private
+
+    # R2's S3 endpoint never serves objects anonymously, so the unsigned URL Active Storage
+    # builds for a public bucket cannot be fetched by a browser — images simply failed to
+    # load. Public URLs are only possible once the bucket has an r2.dev address or a custom
+    # domain; point S3_PUBLIC_BASE_URL at it and they are used, otherwise the service stays
+    # non-public and everything is served through signed URLs, which always work.
+    def public_url(key, **)
+      base = ENV["S3_PUBLIC_BASE_URL"].presence
+      base ? "#{base.chomp('/')}/#{key}" : super
+    end
   end
 end

@@ -28,16 +28,12 @@
           <div class="fields-row">
             <div class="field"><%= f.label :width_mm, t("admin.templates.width_mm") %><%= f.number_field :width_mm, step: 0.1, class: "input" %></div>
             <div class="field"><%= f.label :height_mm, t("admin.templates.height_mm") %><%= f.number_field :height_mm, step: 0.1, class: "input" %></div>
-            <div class="field"><%= f.label :min_dpi, "Min DPI" %><%= f.number_field :min_dpi, class: "input" %></div>
           </div>
-          <div class="fields-row">
-            <div class="field"><%= f.label :x, "x" %><%= f.number_field :x, step: 0.000001, min: 0, max: 1, class: "input" %></div>
-            <div class="field"><%= f.label :y, "y" %><%= f.number_field :y, step: 0.000001, min: 0, max: 1, class: "input" %></div>
-            <div class="field"><%= f.label :w, "w" %><%= f.number_field :w, step: 0.000001, min: 0, max: 1, class: "input" %></div>
-            <div class="field"><%= f.label :h, "h" %><%= f.number_field :h, step: 0.000001, min: 0, max: 1, class: "input" %></div>
-          </div>
-          <div class="hint"><%= t("admin.templates.area_hint") %></div>
-          <% if area.aspect_mismatch? %><p class="warn-text"><%= t("admin.templates.aspect_warning", px: area.aspect_px.round(2), mm: area.aspect_mm.round(2)) %></p><% end %>
+          <div class="hint"><%= t("admin.templates.size_hint") %></div>
+          <%# The rectangle is dragged on the photo; these carry its position and are never typed. %>
+          <%= f.hidden_field :x %><%= f.hidden_field :y %><%= f.hidden_field :w %><%= f.hidden_field :h %>
+          <%= f.hidden_field :min_dpi %>
+          <% if area.aspect_mismatch? %><p class="warn-text"><%= t("admin.templates.aspect_warning_plain") %></p><% end %>
           <div class="btn-row" style="margin-top:10px">
             <%= f.submit t("admin.save"), class: "btn btn-primary" %>
             <% if area.persisted? %><%= button_to t("admin.delete"), admin_template_print_area_path(@template, area), method: :delete, class: "btn btn-danger btn-sm", form_class: "inline", form: { onsubmit: "return confirm('#{t('admin.confirm')}')" } %><% end %>

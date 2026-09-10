@@ -416,6 +416,8 @@ es:
       width_mm: "Ancho real (mm)"
       height_mm: "Alto real (mm)"
       area_hint: "x, y, w, h son fracciones (0–1) de la foto. Dibujá el rectángulo en la imagen."
+      size_hint: "Cuánto mide el área impresa sobre la tela, en milímetros. Con esto se calcula la calidad y se arma el archivo de impresión."
+      aspect_warning_plain: "El rectángulo que dibujaste tiene otra proporción que el tamaño en milímetros. Ajustá uno de los dos, o el diseño se verá distinto en pantalla y en la prenda."
       aspect_warning: "La proporción del rectángulo (%{px}) difiere de la proporción física (%{mm}); el diseño se verá distinto en pantalla y en la impresión."
       editor_loading: "Editor de área: iniciá el servidor de Vite (bin/dev) o compilá el frontend."
       upload_first: "Subí primero la foto de la prenda."

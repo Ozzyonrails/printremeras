@@ -32,7 +32,9 @@ s3_public:
   bucket: <%= ENV["S3_PUBLIC_BUCKET"] || placeholder %>
   endpoint: <%= ENV["S3_ENDPOINT"] %>
   force_path_style: <%= ENV.fetch("S3_FORCE_PATH_STYLE", "true") %>
-  public: true
+  # Only advertise unsigned public URLs when the bucket actually has a public address
+  # (S3_PUBLIC_BASE_URL). Without one, signed URLs are the only thing a browser can fetch.
+  public: <%= ENV["S3_PUBLIC_BASE_URL"].present? %>
   upload:
     cache_control: "public, max-age=31536000, immutable"
 
