@@ -21,7 +21,7 @@ module Serializers
   end
 
   def template(t, full: false)
-    base = { id: t.id, slug: t.slug, kind: t.kind, name: t.name, description: t.description, color_name: t.color_name, color_hex: t.color_hex,
+    base = { id: t.id, slug: t.slug, kind: t.kind, name: t.name, description: t.description, color_name: t.color_name, color_label: t.color_label, color_hex: t.color_hex,
              base_price_cents: t.base_price_cents, print_price_one_side_cents: t.print_price_one_side_cents,
              print_price_two_sides_cents: t.print_price_two_sides_cents, image_url: Rendering::Urls.variant_path((t.front_area || t.print_areas.first)&.mockup, :card),
              sizes: t.template_sizes.map { |s| template_size(s) } }

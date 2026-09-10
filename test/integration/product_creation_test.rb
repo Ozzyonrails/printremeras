@@ -66,6 +66,18 @@ class ProductCreationTest < ActionDispatch::IntegrationTest
     assert_operator placement.scale.to_f, :<, 0.6
   end
 
+  test "the storefront sends a colour label even when the shop left the name blank" do
+    @template.update!(color_name: "", color_hex: "#ffffff")
+    create_product
+    item = CatalogItem.order(:id).last
+    item.update!(published: true)
+    get "/api/v1/catalog_items/#{item.slug}", headers: { "Accept" => "application/json" }
+    assert_response :success
+    template = JSON.parse(response.body)["catalog_item"]["template"]
+    assert_equal "", template["color_name"].to_s
+    assert template["color_label"].present?, "a blank name falls back to the palette name"
+  end
+
   test "a garment with no print area is reported instead of failing silently" do
     bare = Template.create!(kind: "t-shirt", color_hex: "#ffffff", color_name: "",
                             name_translations: { I18n.default_locale.to_s => "Голый" })

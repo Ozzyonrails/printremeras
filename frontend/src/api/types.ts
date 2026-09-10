@@ -46,6 +46,8 @@ export interface Template {
   name: string
   description: string | null
   color_name: string | null
+  /** Shop's own wording, or the palette name in the current language when it is blank. */
+  color_label: string
   color_hex: string | null
   base_price_cents: number
   print_price_one_side_cents: number

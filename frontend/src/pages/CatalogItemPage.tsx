@@ -76,7 +76,14 @@ export function CatalogItemPage() {
   if (error) return <div className="container-page py-6"><ErrorBox message={error} onRetry={load} /></div>
   if (!item) return <PageLoading />
 
-  const photos = [item.large_image_url || item.image_url, ...item.template.print_areas.map((a) => a.mockup_card_url)].filter((u): u is string => !!u)
+  // The composite already shows every printed side; adding the bare garment for those
+  // sides just pads the gallery with blank shirts. Sides without a design still earn a
+  // photo, so a front-only print still shows what the back looks like.
+  const printedSides = new Set(item.placements.map((p) => p.side))
+  const photos = [
+    item.large_image_url || item.image_url,
+    ...item.template.print_areas.filter((a) => !printedSides.has(a.side)).map((a) => a.mockup_card_url),
+  ].filter((u): u is string => !!u)
   const size = item.template.sizes.find((s) => s.id === sizeId)
 
   return (
@@ -99,7 +106,7 @@ export function CatalogItemPage() {
         <div className="mt-4 lg:mt-0">
           <h1 className="text-2xl font-bold">{item.title}</h1>
           <p className="mt-1 text-sm text-ink-500">
-            {t('catalog.garment')}: {item.template.name} · {item.template.color_name} · {t('catalog.sidesPrinted', { count: item.sides_count })}
+            {[t('catalog.garment') + ': ' + item.template.name, item.template.color_label, t('catalog.sidesPrinted', { count: item.sides_count })].filter(Boolean).join(' · ')}
           </p>
           <p className="mt-3 text-2xl font-bold">
             <Money cents={item.price_cents} /> <span className="text-sm font-normal text-ink-500">{t('catalog.priceNote')}</span>
