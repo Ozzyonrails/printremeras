@@ -27,8 +27,8 @@ module Admin
 
     def save(area)
       if params.dig(:print_area, :mockup).present?
-        area.mockup.attach(params[:print_area][:mockup])
-        probe_dimensions(area)
+        attached = Catalog::AttachMockup.call(print_area: area, file: params[:print_area][:mockup])
+        return redirect_to(admin_template_path(@template), alert: attached.error_message) if attached.failure?
       end
       if area.save
         audit!("print_area.saved", area, area.saved_changes.except("updated_at"))
@@ -36,15 +36,6 @@ module Admin
       else
         redirect_to admin_template_path(@template), alert: area.errors.full_messages.join(", ")
       end
-    end
-
-    def probe_dimensions(area)
-      file = params[:print_area][:mockup]
-      image = Vips::Image.new_from_file(file.tempfile.path, access: :sequential)
-      area.mockup_width_px = image.width
-      area.mockup_height_px = image.height
-    rescue Vips::Error
-      area.errors.add(:mockup, :invalid)
     end
 
     def area_params
