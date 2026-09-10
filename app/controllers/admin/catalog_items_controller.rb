@@ -17,12 +17,18 @@ module Admin
     def create
       @item = CatalogItem.new(item_params)
       result = Catalog::SaveCatalogItem.call(catalog_item: @item, attributes: {}, placements: nil, admin_user: current_admin)
-      if result.success?
-        redirect_to editor_admin_catalog_item_path(@item), notice: t("admin.catalog.created_next_editor")
-      else
+      unless result.success?
         @templates = Template.ordered
         flash.now[:alert] = result.error_message
-        render :new, status: :unprocessable_content
+        return render(:new, status: :unprocessable_content)
+      end
+
+      placed = Catalog::AddDesignToProduct.call(catalog_item: @item, file: params[:design_file], admin_user: current_admin)
+      if placed.success?
+        redirect_to editor_admin_catalog_item_path(@item), notice: t("admin.catalog.created_with_design")
+      else
+        # The product exists; the design did not attach, so say why and let them retry there.
+        redirect_to editor_admin_catalog_item_path(@item), alert: placed.error_message
       end
     end
 

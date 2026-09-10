@@ -1,4 +1,4 @@
-<%= form_with model: [ :admin, item ] do |f| %>
+<%= form_with model: [ :admin, item ], html: { multipart: true } do |f| %>
   <% if item.errors.any? %><div class="flash flash-alert"><%= item.errors.full_messages.join(", ") %></div><% end %>
   <div class="fields-row">
     <div class="field">
@@ -23,6 +23,13 @@
     <%= label_tag "catalog_item_description_translations_#{loc}", t("admin.templates.description") %>
     <%= text_area_tag "catalog_item[description_translations][#{loc}]", item.description_translations[loc], class: "input", rows: 2, id: "catalog_item_description_translations_#{loc}" %>
   </div>
+  <% if item.new_record? %>
+    <div class="field">
+      <%= label_tag :design_file, t("admin.catalog.design_file") %>
+      <%= file_field_tag :design_file, accept: "image/png,image/jpeg,image/webp", class: "input", required: true %>
+      <div class="hint"><%= t("admin.catalog.design_file_hint") %></div>
+    </div>
+  <% end %>
   <div class="field"><%= label_tag "catalog_item_tags_string", "Tags" %><%= text_field_tag "catalog_item[tags_string]", item.tags.join(", "), class: "input", id: "catalog_item_tags_string", placeholder: "rock, verano, minimal" %></div>
   <%= f.submit t("admin.save"), class: "btn btn-primary" %>
 <% end %>
