@@ -12,7 +12,10 @@
   <% if respond_to?(:current_admin) && current_admin %>
   <header class="topbar">
     <button class="menu-toggle" type="button" onclick="document.body.classList.toggle('nav-open')" aria-label="Menu">☰</button>
-    <%= link_to Setting.store_name, admin_root_path, class: "brand" %>
+    <%= link_to admin_root_path, class: "brand" do %>
+      <%= Setting.store_name %><span class="brand-badge"><%= t("admin.panel") %></span>
+    <% end %>
+    <%= link_to t("admin.open_store"), Rails.configuration.x.app.public_url, class: "store-link", target: "_blank", rel: "noopener" %>
     <span class="spacer"></span>
     <%= form_with url: admin_locale_path, method: :patch, class: "locale-switch" do |f| %>
       <%= f.label :locale, t("admin.locales.label"), class: "sr-only" %>

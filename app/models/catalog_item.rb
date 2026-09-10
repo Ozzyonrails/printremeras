@@ -1,5 +1,6 @@
 class CatalogItem < ApplicationRecord
   include Translatable
+  include Sluggable
   translates :title, :description
 
   belongs_to :template
@@ -15,7 +16,7 @@ class CatalogItem < ApplicationRecord
   validates :price_cents, numericality: { greater_than_or_equal_to: 0 }
   validate :title_present_in_default_locale
 
-  before_validation { self.slug = slug.presence || title_translations.values.first.to_s.parameterize }
+  slug_source :title
 
   scope :published, -> { where(published: true) }
   scope :ordered, -> { order(:position, :id) }

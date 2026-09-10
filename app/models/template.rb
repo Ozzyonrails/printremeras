@@ -1,5 +1,6 @@
 class Template < ApplicationRecord
   include Translatable
+  include Sluggable
   translates :name, :description
 
   KINDS = %w[t-shirt hoodie sweatshirt tank-top long-sleeve tote-bag].freeze
@@ -19,7 +20,7 @@ class Template < ApplicationRecord
   validates :base_price_cents, :print_price_one_side_cents, :print_price_two_sides_cents, numericality: { greater_than_or_equal_to: 0 }
   validate :name_present_in_default_locale
 
-  before_validation { self.slug = slug.presence || name_translations.values.first.to_s.parameterize }
+  slug_source :name
 
   scope :active, -> { where(active: true) }
   scope :ordered, -> { order(:position, :id) }

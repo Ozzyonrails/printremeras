@@ -2,9 +2,18 @@
 * { box-sizing: border-box; }
 body.admin { margin:0; font: 14px/1.45 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: var(--bg); color: var(--text); }
 a { color: var(--accent-2); text-decoration: none; } a:hover { text-decoration: underline; }
-.topbar { display:flex; align-items:center; gap:12px; padding:10px 16px; background:#fff; border-bottom:1px solid var(--line); position:sticky; top:0; z-index:20; }
-.topbar .brand { font-weight:700; color:var(--text); font-size:16px; }
-.topbar .spacer { flex:1; } .topbar .who { color:var(--muted); font-size:13px; }
+/* The admin wears a dark bar so it is never mistaken for the shop itself. */
+.topbar { display:flex; align-items:center; gap:12px; padding:10px 16px; background:var(--accent); border-bottom:1px solid #000; position:sticky; top:0; z-index:20; }
+.topbar .brand { font-weight:700; color:#fff; font-size:16px; display:inline-flex; align-items:center; gap:8px; }
+.topbar .brand:hover { text-decoration:none; }
+.brand-badge { font-size:11px; text-transform:uppercase; letter-spacing:.08em; font-weight:600; background:rgba(255,255,255,.16); color:#fff; padding:3px 8px; border-radius:999px; }
+.store-link { color:rgba(255,255,255,.75); font-size:13px; }
+.store-link:hover { color:#fff; }
+.topbar .btn { background:rgba(255,255,255,.12); border-color:rgba(255,255,255,.25); color:#fff; }
+.topbar .btn:hover { background:rgba(255,255,255,.22); }
+.topbar .input { background:rgba(255,255,255,.12); border-color:rgba(255,255,255,.25); color:#fff; }
+.topbar .menu-toggle { color:#fff; }
+.topbar .spacer { flex:1; } .topbar .who { color:rgba(255,255,255,.7); font-size:13px; }
 .locale-switch { display:flex; }
 .locale-switch .input { min-height:36px; padding:4px 8px; width:auto; font-size:13px; }
 .sr-only { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
@@ -91,7 +100,7 @@ details summary { cursor:pointer; font-weight:600; }
   .menu-toggle { display:block; }
   .sidenav { position:fixed; top:49px; left:0; bottom:0; transform:translateX(-100%); transition:transform .2s; z-index:15; overflow-y:auto; }
   body.nav-open .sidenav { transform:none; box-shadow: 0 0 0 100vw rgba(0,0,0,.35); }
-  .content { padding:12px; } .topbar .who { display:none; }
+  .content { padding:12px; } .topbar .who, .store-link { display:none; }
   .kv { grid-template-columns: 1fr; }
   /* iOS Safari zooms the page whenever a focused field is under 16px, which throws the
      layout around and makes forms feel broken on a phone. */

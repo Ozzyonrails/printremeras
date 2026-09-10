@@ -77,7 +77,7 @@ module Admin
     def load_item = @item = CatalogItem.find(params[:id])
 
     def item_params
-      params.require(:catalog_item).permit(:template_id, :slug, :price_cents, :position, :tags_string, title_translations: I18n.available_locales, description_translations: I18n.available_locales).to_h.tap do |h|
+      params.require(:catalog_item).permit(:template_id, :price_cents, :position, :tags_string, title_translations: I18n.available_locales, description_translations: I18n.available_locales).to_h.tap do |h|
         h[:tags] = h.delete(:tags_string).to_s.split(",").map { |t| t.strip.downcase }.reject(&:blank?).uniq if h.key?(:tags_string)
       end
     end

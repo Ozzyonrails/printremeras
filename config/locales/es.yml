@@ -183,6 +183,8 @@ es:
       password_reset: { title: "Restablecer contraseña", body: "Hacé clic para elegir una contraseña nueva. El enlace vence en 30 minutos.", cta: "Elegir contraseña nueva", ignore: "Si no pediste esto, ignorá este mensaje." }
   admin:
     saved: "Guardado"
+    panel: "Panel"
+    open_store: "Ver la tienda"
     locales:
       label: "Idioma"
       unknown: "Idioma no disponible"
