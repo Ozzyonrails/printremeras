@@ -1,0 +1,12 @@
+# Same idea as .dockerignore: never upload local secrets or build output to the builder.
+.env
+.env.*
+!.env.example
+config/master.key
+public/app
+frontend/node_modules
+node_modules
+tmp
+log
+storage
+.git
