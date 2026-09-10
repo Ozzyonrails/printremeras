@@ -30,10 +30,16 @@
   </div>
 
   <% if template.new_record? %>
+    <h3><%= t("admin.templates.photos") %></h3>
+    <p class="hint"><%= t("admin.templates.photos_hint") %></p>
     <div class="field">
       <%= label_tag :front_mockup, t("admin.templates.mockup_front") %>
-      <%= file_field_tag :front_mockup, accept: "image/png,image/jpeg,image/webp", class: "input" %>
-      <div class="hint"><%= t("admin.templates.mockup_front_hint") %></div>
+      <%= file_field_tag :front_mockup, accept: "image/png,image/jpeg,image/webp", class: "input", required: true %>
+    </div>
+    <div class="field">
+      <%= label_tag :back_mockup, t("admin.templates.mockup_back") %>
+      <%= file_field_tag :back_mockup, accept: "image/png,image/jpeg,image/webp", class: "input" %>
+      <div class="hint"><%= t("admin.templates.mockup_back_hint") %></div>
     </div>
   <% else %>
     <h3><%= t("admin.templates.pricing") %></h3>

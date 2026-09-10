@@ -23,6 +23,8 @@ class Template < ApplicationRecord
 
   validates :kind, inclusion: { in: KINDS }
   validates :slug, presence: true, uniqueness: true, format: { with: /\A[a-z0-9-]+\z/ }
+  # The column is NOT NULL and the field is optional, so an empty name is stored as "".
+  normalizes :color_name, with: ->(value) { value.to_s.strip }, apply_to_nil: true
   validates :color_hex, format: { with: /\A#[0-9a-fA-F]{6}\z/ }
   validates :base_price_cents, :print_price_one_side_cents, :print_price_two_sides_cents, numericality: { greater_than_or_equal_to: 0 }
   validate :name_present_in_default_locale

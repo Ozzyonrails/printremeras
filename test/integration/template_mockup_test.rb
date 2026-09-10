@@ -43,14 +43,38 @@ class TemplateMockupTest < ActionDispatch::IntegrationTest
     assert_equal 1100, area.mockup_height_px
   end
 
-  test "creating without a photo still works and leaves the upload for later" do
+  test "both sides can be uploaded at creation" do
+    front = png_file(900, 1100, name: "front.png")
+    back = png_file(900, 1100, name: "back.png")
     post "/admin/templates", params: {
-      template: { kind: "t-shirt", slug: "remera-dos", color_name: "Negro", color_hex: "#111111",
-                  base_price_cents: 1_000_000, print_price_one_side_cents: 500_000, print_price_two_sides_cents: 800_000,
-                  name_translations: { es: "Remera dos" } }
+      template: { kind: "t-shirt", color_hex: "#ffffff",
+                  name_translations: { I18n.default_locale.to_s => "Двусторонняя" } },
+      front_mockup: fixture_file_upload(front.path, "image/png"),
+      back_mockup: fixture_file_upload(back.path, "image/png")
     }
-    template = Template.find_by!(slug: "remera-dos")
-    assert_empty template.print_areas
+    template = Template.find_by!(slug: "dvustoronnyaya")
+    assert_equal %w[back front], template.print_areas.map(&:side).sort
+    assert template.print_areas.all? { |a| a.mockup.attached? }
+  end
+
+  test "the front photo is required" do
+    assert_no_difference -> { Template.count } do
+      post "/admin/templates", params: { template: { kind: "t-shirt", color_hex: "#ffffff",
+        name_translations: { I18n.default_locale.to_s => "Без фото" } } }
+    end
+    assert_response :unprocessable_content
+    assert_match I18n.t("admin.templates.mockup_front_required"), response.body
+  end
+
+  test "the back side is optional" do
+    front = png_file(900, 1100, name: "front.png")
+    post "/admin/templates", params: {
+      template: { kind: "t-shirt", color_hex: "#111111",
+                  name_translations: { I18n.default_locale.to_s => "Только перед" } },
+      front_mockup: fixture_file_upload(front.path, "image/png")
+    }
+    template = Template.order(:id).last
+    assert_equal %w[front], template.print_areas.map(&:side)
     get admin_template_path(template)
     assert_response :success
   end

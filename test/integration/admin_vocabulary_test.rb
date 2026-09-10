@@ -32,9 +32,10 @@ class AdminVocabularyTest < ActionDispatch::IntegrationTest
   end
 
   test "a garment saves without a colour name and shows the palette name instead" do
-    post "/admin/templates", params: { template: {
-      kind: "hoodie", color_hex: "#111111", color_name: "",
-      name_translations: { I18n.default_locale.to_s => "Худи чёрное" } } }
+    post "/admin/templates", params: {
+      template: { kind: "hoodie", color_hex: "#111111", color_name: "",
+                  name_translations: { I18n.default_locale.to_s => "Худи чёрное" } },
+      front_mockup: fixture_file_upload(png_file(600, 700, name: "m.png").path, "image/png") }
     template = Template.order(:id).last
     assert_equal "", template.color_name.to_s
     I18n.with_locale(:ru) { assert_equal "Чёрный", template.color_label }

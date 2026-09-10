@@ -16,10 +16,10 @@ class AdminFormSimplificationTest < ActionDispatch::IntegrationTest
   end
 
   test "a garment named in Russian gets a readable slug on its own" do
-    post "/admin/templates", params: { template: {
-      kind: "t-shirt", color_name: "Белый", color_hex: "#ffffff",
-      base_price_cents: 1_000_000, print_price_one_side_cents: 500_000, print_price_two_sides_cents: 800_000,
-      name_translations: { I18n.default_locale.to_s => "Футболка белая" } } }
+    post "/admin/templates", params: {
+      template: { kind: "t-shirt", color_name: "Белый", color_hex: "#ffffff",
+                  name_translations: { I18n.default_locale.to_s => "Футболка белая" } },
+      front_mockup: fixture_file_upload(png_file(600, 700, name: "m.png").path, "image/png") }
     template = Template.order(:id).last
     assert_equal "futbolka-belaya", template.slug
     assert_redirected_to admin_template_path(template)
@@ -27,10 +27,10 @@ class AdminFormSimplificationTest < ActionDispatch::IntegrationTest
 
   test "two garments with the same name do not collide" do
     2.times do
-      post "/admin/templates", params: { template: {
-        kind: "t-shirt", color_name: "Blanco", color_hex: "#ffffff",
-        base_price_cents: 1, print_price_one_side_cents: 1, print_price_two_sides_cents: 1,
-        name_translations: { I18n.default_locale.to_s => "Remera" } } }
+      post "/admin/templates", params: {
+        template: { kind: "t-shirt", color_name: "Blanco", color_hex: "#ffffff",
+                    name_translations: { I18n.default_locale.to_s => "Remera" } },
+        front_mockup: fixture_file_upload(png_file(600, 700, name: "m.png").path, "image/png") }
     end
     assert_equal %w[remera remera-1], Template.order(:id).last(2).map(&:slug)
   end

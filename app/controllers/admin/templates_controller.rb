@@ -16,8 +16,13 @@ module Admin
 
     def create
       @template = Template.new(template_params)
+      if params[:front_mockup].blank?
+        @template.errors.add(:base, t("admin.templates.mockup_front_required"))
+        return render(:new, status: :unprocessable_content)
+      end
+
       if @template.save
-        attach_front_mockup
+        attach_mockups
         audit!("template.created", @template, @template.attributes.slice("slug", "base_price_cents", "print_price_one_side_cents", "print_price_two_sides_cents"))
         redirect_to admin_template_path(@template), notice: t("admin.saved")
       else
@@ -51,21 +56,20 @@ module Admin
 
     def load_template = @template = Template.find(params[:id])
 
-    # A garment is useless without a photo, so the creation form takes one and sets up the
-    # front print area with default proportions. The admin then drags the rectangle and
-    # enters the real millimetres on the template page.
-    def attach_front_mockup
-      file = params[:front_mockup]
-      return if file.blank?
+    # A garment is useless without a photo, so the creation form takes both sides at once
+    # and sets up the print areas with default proportions. The admin then drags the
+    # rectangles and enters the real millimetres on the template page.
+    def attach_mockups
+      problems = %w[front back].filter_map do |side|
+        file = params[:"#{side}_mockup"]
+        next if file.blank?
 
-      area = @template.print_areas.find_or_initialize_by(side: "front")
-      result = Catalog::AttachMockup.call(print_area: area, file: file)
-      if result.success?
-        area.save
-        flash[:alert] = area.errors.full_messages.join(", ") if area.errors.any?
-      else
-        flash[:alert] = result.error_message
+        area = @template.print_areas.find_or_initialize_by(side: side)
+        result = Catalog::AttachMockup.call(print_area: area, file: file)
+        next result.error_message if result.failure?
+        area.errors.full_messages.join(", ").presence
       end
+      flash[:alert] = problems.join(" · ") if problems.any?
     end
 
     def template_params
