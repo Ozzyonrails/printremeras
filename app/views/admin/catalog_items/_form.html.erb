@@ -1,0 +1,17 @@
+<%= form_with model: [ :admin, item ] do |f| %>
+  <% if item.errors.any? %><div class="flash flash-alert"><%= item.errors.full_messages.join(", ") %></div><% end %>
+  <div class="fields-row">
+    <div class="field"><%= f.label :template_id, t("admin.templates.name") %><%= f.collection_select :template_id, @templates, :id, ->(t) { "#{t.name} · #{t.color_name}" }, {}, class: "input" %></div>
+    <div class="field"><%= f.label :slug, "Slug" %><%= f.text_field :slug, class: "input" %></div>
+    <div class="field"><%= f.label :price_cents, t("admin.catalog.price") %><%= f.number_field :price_cents, class: "input", min: 0 %><div class="hint"><%= t("admin.cents_hint") %></div></div>
+    <div class="field"><%= f.label :position, t("admin.position") %><%= f.number_field :position, class: "input" %></div>
+  </div>
+  <% I18n.available_locales.each do |loc| %>
+    <div class="fields-row">
+      <div class="field"><%= label_tag "catalog_item_title_translations_#{loc}", "#{t('admin.catalog.title')} (#{loc})" %><%= text_field_tag "catalog_item[title_translations][#{loc}]", item.title_translations[loc.to_s], class: "input", id: "catalog_item_title_translations_#{loc}" %></div>
+      <div class="field"><%= label_tag "catalog_item_description_translations_#{loc}", "#{t('admin.templates.description')} (#{loc})" %><%= text_area_tag "catalog_item[description_translations][#{loc}]", item.description_translations[loc.to_s], class: "input", rows: 2, id: "catalog_item_description_translations_#{loc}" %></div>
+    </div>
+  <% end %>
+  <div class="field"><%= label_tag "catalog_item_tags_string", "Tags" %><%= text_field_tag "catalog_item[tags_string]", item.tags.join(", "), class: "input", id: "catalog_item_tags_string", placeholder: "rock, verano, minimal" %></div>
+  <%= f.submit t("admin.save"), class: "btn btn-primary" %>
+<% end %>

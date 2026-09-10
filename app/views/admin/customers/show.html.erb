@@ -1,0 +1,19 @@
+<% content_for(:title) { @user.full_name } %>
+<div class="page-head"><h1><%= @user.full_name %></h1><% if @conversation %><%= link_to t("admin.nav.conversations"), admin_conversation_path(@conversation), class: "btn" %><% end %></div>
+<div class="panel">
+  <dl class="kv">
+    <dt>Email</dt><dd><%= @user.email %> <% if @user.confirmed? %><span class="badge badge-delivered">✓</span><% else %><span class="badge"><%= t("admin.customers.unconfirmed") %></span><% end %><% if @user.google_uid %> <span class="badge">Google</span><% end %></dd>
+    <dt><%= t("admin.customers.phone") %></dt><dd><%= @user.phone.presence || "—" %></dd>
+    <dt><%= t("admin.customers.locale") %></dt><dd><%= @user.locale %></dd>
+    <dt><%= t("admin.customers.since") %></dt><dd><%= l(@user.created_at.to_date) %></dd>
+    <dt><%= t("admin.customers.addresses") %></dt><dd><% @user.addresses.each do |a| %><div><%= a.one_line %><% if a.is_default? %> <span class="badge">default</span><% end %></div><% end %></dd>
+  </dl>
+</div>
+<h2><%= t("admin.customers.orders") %></h2>
+<%= render "admin/orders/table", orders: @orders %>
+<h2><%= t("admin.nav.coupons") %></h2>
+<% if @coupons.any? %>
+<table class="list"><thead><tr><th><%= t("admin.coupons.code") %></th><th><%= t("admin.coupons.discount") %></th><th><%= t("admin.coupons.uses") %></th><th><%= t("admin.coupons.valid_until") %></th></tr></thead><tbody>
+<% @coupons.each do |c| %><tr><td class="mono"><%= c.code %></td><td><%= c.percentage? ? "#{c.discount_value}%" : money(c.discount_value) %></td><td><%= c.used_count %>/<%= c.max_uses || "∞" %></td><td class="small"><%= c.valid_until ? l(c.valid_until.to_date) : "—" %></td></tr><% end %>
+</tbody></table>
+<% else %><p class="muted"><%= t("admin.none") %></p><% end %>

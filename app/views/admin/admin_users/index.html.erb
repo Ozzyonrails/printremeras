@@ -1,0 +1,5 @@
+<% content_for(:title) { t("admin.nav.admin_users") } %>
+<div class="page-head"><h1><%= t("admin.nav.admin_users") %></h1><%= link_to t("admin.new"), new_admin_admin_user_path, class: "btn btn-primary" %></div>
+<table class="list"><thead><tr><th><%= t("admin.customers.name") %></th><th>Email</th><th><%= t("admin.admin_users.role") %></th><th></th></tr></thead><tbody>
+<% @admin_users.each do |a| %><tr><td><%= a.name %></td><td><%= a.email %></td><td><%= a.role %><% unless a.active? %> <span class="badge"><%= t("admin.inactive") %></span><% end %></td><td><%= link_to t("admin.edit"), edit_admin_admin_user_path(a), class: "btn btn-sm" %></td></tr><% end %>
+</tbody></table>

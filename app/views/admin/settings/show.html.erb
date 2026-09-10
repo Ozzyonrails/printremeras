@@ -1,0 +1,17 @@
+<% content_for(:title) { t("admin.nav.settings") } %>
+<h1><%= t("admin.nav.settings") %></h1>
+<%= form_with url: admin_settings_path, method: :patch do %>
+  <% @groups.each do |group, specs| %>
+    <div class="panel">
+      <h2><%= t("admin.settings.groups.#{group}") %></h2>
+      <% specs.each do |key, spec| %>
+        <div class="field">
+          <label for="setting_<%= key %>"><%= t("admin.settings.keys.#{key}", default: key.to_s.humanize) %></label>
+          <%= setting_field(key, spec, @values[key]) %>
+          <div class="hint"><%= t("admin.settings.hints.#{key}", default: "") %></div>
+        </div>
+      <% end %>
+    </div>
+  <% end %>
+  <%= submit_tag t("admin.save"), class: "btn btn-primary" %>
+<% end %>

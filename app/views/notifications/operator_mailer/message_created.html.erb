@@ -1,0 +1,3 @@
+<h1><%= t("mailers.operator.message_created", name: @message.conversation.user.full_name) %></h1>
+<blockquote><%= simple_format(@message.body) %></blockquote>
+<p><a class="btn" href="<%= Rails.configuration.x.app.public_url %>/admin/conversations/<%= @message.conversation_id %>">Admin</a></p>

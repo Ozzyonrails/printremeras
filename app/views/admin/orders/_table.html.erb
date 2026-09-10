@@ -1,0 +1,16 @@
+<div class="table-wrap"><table class="list">
+  <thead><tr><th><%= t("admin.orders.number") %></th><th><%= t("admin.orders.customer") %></th><th><%= t("admin.orders.status") %></th><th><%= t("admin.orders.shipping") %></th><th class="num"><%= t("admin.orders.total") %></th><th><%= t("admin.orders.placed") %></th></tr></thead>
+  <tbody>
+    <% orders.each do |o| %>
+      <tr>
+        <td><%= link_to o.number, admin_order_path(o), class: "mono" %><% if o.custom? %> <span class="badge">custom</span><% end %></td>
+        <td><%= link_to o.user.full_name, admin_customer_path(o.user) %><div class="small muted"><%= o.user.email %></div></td>
+        <td><%= status_badge(o.status) %></td>
+        <td><%= t("shipping.methods.#{o.shipping_method}") %></td>
+        <td class="num"><%= money(o.total_cents) %></td>
+        <td class="small muted"><%= l(o.placed_at || o.created_at, format: :short) %></td>
+      </tr>
+    <% end %>
+    <% if orders.empty? %><tr><td colspan="6" class="muted"><%= t("admin.none") %></td></tr><% end %>
+  </tbody>
+</table></div>

@@ -1,0 +1,12 @@
+<%= form_with model: [ :admin, admin_user ] do |f| %>
+  <% if admin_user.errors.any? %><div class="flash flash-alert"><%= admin_user.errors.full_messages.join(", ") %></div><% end %>
+  <div class="field"><%= f.label :name, t("admin.customers.name") %><%= f.text_field :name, class: "input" %></div>
+  <div class="field"><%= f.label :email, "Email" %><%= f.email_field :email, class: "input" %></div>
+  <div class="field"><%= f.label :password, t("admin.auth.password") %><%= f.password_field :password, class: "input", autocomplete: "new-password" %><div class="hint"><%= t("admin.admin_users.password_hint") %></div></div>
+  <div class="fields-row">
+    <div class="field"><%= f.label :role, t("admin.admin_users.role") %><%= f.select :role, AdminUser::ROLES, {}, class: "input" %></div>
+    <div class="field"><%= f.label :locale, t("admin.customers.locale") %><%= f.select :locale, I18n.available_locales, {}, class: "input" %></div>
+  </div>
+  <div class="field"><label><%= f.check_box :active %> <%= t("admin.active") %></label></div>
+  <%= f.submit t("admin.save"), class: "btn btn-primary" %>
+<% end %>

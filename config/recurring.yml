@@ -1,0 +1,12 @@
+production:
+  purge_expired_guest_sessions:
+    class: Identity::PurgeExpiredGuestSessionsJob
+    queue: default
+    schedule: every day at 4am
+  review_invitations:
+    class: Reviews::SendInvitationsJob
+    queue: default
+    schedule: every day at 10am
+  cleanup_solid_queue_jobs:
+    command: "SolidQueue::Job.clear_finished_in_batches"
+    schedule: every day at 3am

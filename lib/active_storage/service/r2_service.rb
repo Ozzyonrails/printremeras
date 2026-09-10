@@ -1,0 +1,17 @@
+require "active_storage/service/s3_service"
+
+module ActiveStorage
+  # Cloudflare R2 speaks the S3 API but does not implement object ACLs. Active Storage
+  # adds `x-amz-acl: public-read` to every upload for a service declared `public: true`
+  # (see S3Service#initialize), which R2 rejects. This subclass is identical to the S3
+  # service with that one header removed, so a public bucket works on R2.
+  #
+  # Selected automatically in config/storage.yml when S3_ENDPOINT points at R2; override
+  # with S3_SERVICE=S3 to force the stock behaviour.
+  class Service::R2Service < Service::S3Service
+    def initialize(**options)
+      super
+      upload_options.delete(:acl)
+    end
+  end
+end

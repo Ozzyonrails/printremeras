@@ -1,0 +1,4 @@
+<h1><%= t("mailers.customer.review_rejected.title", name: @user.display_name) %></h1>
+<p><%= t("mailers.customer.review_rejected.body") %></p>
+<blockquote><%= @review.rejection_reason %></blockquote>
+<% if @review.can_resubmit? %><p><%= t("mailers.customer.review_rejected.resubmit") %></p><p><a class="btn" href="<%= order_url_for(@review.order) %>/review"><%= t("mailers.customer.review_rejected.cta") %></a></p><% end %>

@@ -1,0 +1,16 @@
+<% content_for(:title) { t("admin.nav.orders") } %>
+<div class="page-head"><h1><%= t("admin.nav.orders") %></h1>
+  <%= form_with url: admin_orders_path, method: :get, class: "btn-row" do |f| %>
+    <%= f.hidden_field :status, value: params[:status] %>
+    <%= f.text_field :q, value: params[:q], placeholder: t("admin.search"), class: "input", style: "width:220px" %>
+    <%= f.submit t("admin.search"), class: "btn" %>
+  <% end %>
+</div>
+<div class="filters">
+  <%= link_to t("admin.all"), admin_orders_path(q: params[:q]), class: params[:status].blank? ? "active" : "" %>
+  <% Order::STATUSES.reject { |s| s == "draft" }.each do |s| %>
+    <%= link_to "#{t("orders.statuses.#{s}")} (#{@status_counts[s] || 0})", admin_orders_path(status: s, q: params[:q]), class: params[:status] == s ? "active" : "" %>
+  <% end %>
+</div>
+<%= render "table", orders: @orders %>
+<%= pagination %>

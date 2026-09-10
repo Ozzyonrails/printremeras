@@ -1,0 +1,24 @@
+<% content_for(:title) { t("admin.nav.coupons") } %>
+<div class="page-head"><h1><%= t("admin.nav.coupons") %></h1><%= link_to t("admin.coupons.new"), new_admin_coupon_path, class: "btn btn-primary" %></div>
+<div class="stats">
+  <div class="stat"><div class="n"><%= @stats[:issued] %></div><div class="l"><%= t("admin.coupons.issued") %></div></div>
+  <div class="stat"><div class="n"><%= @stats[:redeemed] %></div><div class="l"><%= t("admin.coupons.redeemed") %></div></div>
+  <div class="stat"><div class="n"><%= money(@stats[:discount_total]) %></div><div class="l"><%= t("admin.coupons.discount_total") %></div></div>
+</div>
+<div class="table-wrap"><table class="list">
+  <thead><tr><th><%= t("admin.coupons.code") %></th><th><%= t("admin.coupons.discount") %></th><th><%= t("admin.coupons.owner") %></th><th><%= t("admin.coupons.source") %></th><th><%= t("admin.coupons.uses") %></th><th><%= t("admin.coupons.valid_until") %></th><th></th></tr></thead>
+  <tbody>
+  <% @coupons.each do |c| %>
+    <tr class="<%= 'muted' unless c.currently_valid? %>">
+      <td class="mono"><%= c.code %></td>
+      <td><%= c.percentage? ? "#{c.discount_value}%" : money(c.discount_value) %><% if c.min_order_cents %> <span class="small muted">min <%= money(c.min_order_cents) %></span><% end %></td>
+      <td><%= c.owner ? link_to(c.owner.email, admin_customer_path(c.owner)) : "—" %></td>
+      <td><%= c.source %></td>
+      <td><%= c.used_count %><%= c.max_uses ? " / #{c.max_uses}" : "" %></td>
+      <td class="small"><%= c.valid_until ? l(c.valid_until.to_date) : "—" %></td>
+      <td><%= button_to (c.active? ? t("admin.coupons.deactivate") : t("admin.coupons.activate")), admin_coupon_path(c), method: :patch, params: { active: c.active? ? "0" : "1" }, class: "btn btn-sm", form_class: "inline" %></td>
+    </tr>
+  <% end %>
+  </tbody>
+</table></div>
+<%= pagination %>

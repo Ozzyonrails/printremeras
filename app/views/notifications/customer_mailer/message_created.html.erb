@@ -1,0 +1,3 @@
+<h1><%= t("mailers.customer.message_created.title", name: @user.display_name) %></h1>
+<blockquote><%= simple_format(@message.body) %></blockquote>
+<p><a class="btn" href="<%= Rails.configuration.x.app.public_url %>/messages"><%= t("mailers.customer.message_created.cta") %></a></p>

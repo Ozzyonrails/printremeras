@@ -1,0 +1,63 @@
+# Production-style stack on a single host: Postgres + web (Puma/Thruster) + Solid Queue worker.
+#   cp .env.example .env   # fill in secrets
+#   docker compose up -d --build
+# TLS: set TLS_DOMAIN in .env and Thruster obtains a Let's Encrypt certificate itself
+# (ports 80/443 must be reachable). Behind your own proxy, leave TLS_DOMAIN empty.
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-printremeras}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}
+      POSTGRES_DB: ${POSTGRES_DB:-printremeras}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-printremeras}"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  web:
+    build: .
+    image: printremeras:latest
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      DATABASE_URL: postgres://${POSTGRES_USER:-printremeras}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB:-printremeras}
+      PORT: "3000"
+      HTTP_PORT: "80"
+      HTTPS_PORT: "443"
+    ports:
+      - "${HTTP_BIND:-80}:80"
+      - "${HTTPS_BIND:-443}:443"
+    volumes:
+      - storage:/rails/storage      # only used when STORAGE_BACKEND=local
+      - thruster:/home/rails/.local/share/thruster  # TLS certificates cache
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost/up"]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+
+  worker:
+    image: printremeras:latest
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      DATABASE_URL: postgres://${POSTGRES_USER:-printremeras}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB:-printremeras}
+    command: ["./bin/jobs"]
+    volumes:
+      - storage:/rails/storage
+    depends_on:
+      web:
+        condition: service_healthy
+
+volumes:
+  pgdata:
+  storage:
+  thruster:

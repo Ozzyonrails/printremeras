@@ -1,0 +1,4 @@
+<h1><%= t("mailers.customer.order_rejected.title", number: @order.number, name: @user.display_name, status: (@to ? t("orders.statuses.#{@to}") : "")) %></h1>
+<p><%= t("mailers.customer.order_rejected.body", number: @order.number, reason: @order.rejection_reason.to_s, note: @order.problem_note.to_s, status: (@to ? t("orders.statuses.#{@to}") : "")) %></p>
+<% if @to == "ready_for_pickup" %><p><strong><%= Setting.pickup_address %></strong><br><%= Setting.pickup_hours %></p><% end %>
+<%= render "notifications/customer_mailer/order_summary", order: @order %>

@@ -1,0 +1,44 @@
+<% content_for(:title) { "Chat · #{@conversation.user.full_name}" } %>
+<div class="page-head"><h1><%= link_to @conversation.user.full_name, admin_customer_path(@conversation.user) %></h1><span class="muted"><%= @conversation.user.email %></span></div>
+<div class="chat" id="chat" data-conversation-id="<%= @conversation.id %>" data-messages-url="<%= admin_conversation_path(@conversation, format: :json) %>" data-post-url="<%= admin_conversation_messages_path(@conversation, format: :json) %>">
+  <div class="chat-log" id="chat-log">
+    <% @messages.each do |m| %><%= render "message", m: m %><% end %>
+  </div>
+  <form class="chat-form" id="chat-form">
+    <textarea class="input" name="body" rows="2" placeholder="<%= t('admin.conversations.placeholder') %>" required></textarea>
+    <select class="input" name="order_id" style="max-width:220px">
+      <option value=""><%= t("admin.conversations.attach_order") %></option>
+      <% @orders.each do |o| %><option value="<%= o.id %>"><%= o.number %> · <%= t("orders.statuses.#{o.status}") %></option><% end %>
+    </select>
+    <button class="btn btn-primary" type="submit"><%= t("admin.conversations.send") %></button>
+  </form>
+</div>
+<template id="msg-template"><div class="msg"><div class="body"></div><div class="meta"></div></div></template>
+<% content_for :scripts do %>
+<script type="module">
+  import * as ActionCable from "<%= asset_path('actioncable.esm.js') %>";
+  const root = document.getElementById("chat"), log = document.getElementById("chat-log"), form = document.getElementById("chat-form");
+  const csrf = document.querySelector('meta[name="csrf-token"]').content;
+  const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+  const seen = new Set([...log.querySelectorAll("[data-id]")].map((el) => el.dataset.id));
+  function render(m) {
+    if (seen.has(String(m.id))) return; seen.add(String(m.id));
+    const el = document.createElement("div"); el.className = "msg" + (m.from_admin ? " mine" : ""); el.dataset.id = m.id;
+    let html = `<div class="body">${esc(m.body).replace(/\n/g, "<br>")}</div>`;
+    if (m.order) html += `<a class="order-card" href="/admin/orders/${esc(m.order.number)}">${m.order.preview_url ? `<img src="${esc(m.order.preview_url)}" alt="">` : ""}<span><strong>${esc(m.order.number)}</strong><br><span class="small muted">${esc(m.order.status)}</span></span></a>`;
+    (m.attachments || []).forEach((a) => { html += `<div><a href="${esc(a.url)}" target="_blank">${esc(a.filename)}</a></div>`; });
+    html += `<div class="meta">${esc(m.sender_name)} · ${new Date(m.created_at).toLocaleString()}</div>`;
+    el.innerHTML = html; log.appendChild(el); log.scrollTop = log.scrollHeight;
+  }
+  log.scrollTop = log.scrollHeight;
+  const consumer = ActionCable.createConsumer("/cable");
+  consumer.subscriptions.create({ channel: "ConversationChannel", conversation_id: root.dataset.conversationId }, { received(data) { if (data.type === "message") render(data.message); } });
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const fd = new FormData(form);
+    const res = await fetch(root.dataset.postUrl, { method: "POST", headers: { "Content-Type": "application/json", "X-CSRF-Token": csrf, "Accept": "application/json" }, body: JSON.stringify({ body: fd.get("body"), order_id: fd.get("order_id") || null }) });
+    if (res.ok) { const data = await res.json(); render(data.message); form.reset(); } else { alert((await res.json()).error || "Error"); }
+  });
+  setInterval(async () => { const res = await fetch(root.dataset.messagesUrl, { headers: { Accept: "application/json" } }); if (res.ok) (await res.json()).messages.forEach(render); }, 15000);
+</script>
+<% end %>

@@ -1,0 +1,16 @@
+<% content_for(:title) { t("admin.nav.moderation") } %>
+<h1><%= t("admin.nav.moderation") %></h1>
+<p class="muted"><%= t("admin.moderation.intro") %></p>
+<div class="filters">
+  <%= link_to t("admin.all"), admin_moderation_index_path, class: params[:quality].blank? ? "active" : "" %>
+  <%= link_to "#{t('admin.moderation.low_quality_only')} (#{@low_quality_count})", admin_moderation_index_path(quality: "low"), class: params[:quality] == "low" ? "active" : "" %>
+</div>
+<div class="table-wrap"><table class="list">
+  <thead><tr><th><%= t("admin.orders.number") %></th><th><%= t("admin.orders.customer") %></th><th><%= t("admin.orders.items") %></th><th><%= t("admin.orders.placed") %></th><th></th></tr></thead>
+  <tbody>
+  <% @orders.each do |o| %>
+    <tr><td class="mono"><%= o.number %><% if o.low_quality_artwork? %> <span class="badge badge-problem"><%= t("admin.moderation.low_dpi") %></span><% end %></td><td><%= o.user.full_name %></td><td><%= o.items.map { |i| "#{i.title} #{i.size_label} ×#{i.quantity}" }.join(", ") %></td><td class="small muted"><%= l(o.placed_at, format: :short) %></td><td><%= link_to t("admin.moderation.review"), admin_moderation_path(o), class: "btn btn-sm btn-primary" %></td></tr>
+  <% end %>
+  <% if @orders.empty? %><tr><td colspan="5" class="muted"><%= t("admin.moderation.empty") %></td></tr><% end %>
+  </tbody>
+</table></div>

@@ -1,0 +1,25 @@
+<%= form_with model: [ :admin, template ] do |f| %>
+  <% if template.errors.any? %><div class="flash flash-alert"><%= template.errors.full_messages.join(", ") %></div><% end %>
+  <div class="fields-row">
+    <div class="field"><%= f.label :kind, t("admin.templates.kind") %><%= f.select :kind, ::Template::KINDS, {}, class: "input" %></div>
+    <div class="field"><%= f.label :slug, "Slug" %><%= f.text_field :slug, class: "input" %></div>
+    <div class="field"><%= f.label :position, t("admin.position") %><%= f.number_field :position, class: "input" %></div>
+  </div>
+  <% I18n.available_locales.each do |loc| %>
+    <div class="fields-row">
+      <div class="field"><%= label_tag "template_name_translations_#{loc}", "#{t('admin.templates.name')} (#{loc})" %><%= text_field_tag "template[name_translations][#{loc}]", template.name_translations[loc.to_s], class: "input", id: "template_name_translations_#{loc}" %></div>
+      <div class="field"><%= label_tag "template_description_translations_#{loc}", "#{t('admin.templates.description')} (#{loc})" %><%= text_area_tag "template[description_translations][#{loc}]", template.description_translations[loc.to_s], class: "input", rows: 2, id: "template_description_translations_#{loc}" %></div>
+    </div>
+  <% end %>
+  <div class="fields-row">
+    <div class="field"><%= f.label :color_name, t("admin.templates.color") %><%= f.text_field :color_name, class: "input" %></div>
+    <div class="field"><%= f.label :color_hex, "Hex" %><%= f.color_field :color_hex, class: "input" %></div>
+  </div>
+  <div class="fields-row">
+    <div class="field"><%= f.label :base_price_cents, t("admin.templates.base_price") %><%= f.number_field :base_price_cents, class: "input", min: 0 %><div class="hint"><%= t("admin.cents_hint") %></div></div>
+    <div class="field"><%= f.label :print_price_one_side_cents, t("admin.templates.print_1") %><%= f.number_field :print_price_one_side_cents, class: "input", min: 0 %></div>
+    <div class="field"><%= f.label :print_price_two_sides_cents, t("admin.templates.print_2") %><%= f.number_field :print_price_two_sides_cents, class: "input", min: 0 %></div>
+  </div>
+  <div class="field"><label><%= f.check_box :active %> <%= t("admin.active") %></label></div>
+  <%= f.submit t("admin.save"), class: "btn btn-primary" %>
+<% end %>

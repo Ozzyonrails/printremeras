@@ -1,0 +1,3 @@
+<h1><%= t("mailers.operator.review_submitted", number: @review.order.number) %></h1>
+<p><%= @review.user.full_name %> · <%= "★" * @review.rating %> · <%= @review.photos.size %> photos</p>
+<p><a class="btn" href="<%= Rails.configuration.x.app.public_url %>/admin/reviews/<%= @review.id %>">Admin</a></p>

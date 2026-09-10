@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html lang="<%= I18n.locale %>">
+<head>
+  <meta charset="utf-8">
+  <title>Admin · <%= Setting.store_name %></title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <%= csrf_meta_tags %>
+  <%= stylesheet_link_tag "admin" %>
+</head>
+<body class="admin login-page">
+  <% if alert %><div class="flash flash-alert"><%= alert %></div><% end %>
+  <%= yield %>
+</body>
+</html>

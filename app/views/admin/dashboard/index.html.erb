@@ -1,0 +1,17 @@
+<% content_for(:title) { t("admin.nav.dashboard") } %>
+<h1><%= t("admin.nav.dashboard") %></h1>
+<div class="stats">
+  <%= link_to admin_moderation_index_path, class: "stat #{'warn' if @counts[:pending_approval] > 0}" do %><div class="n"><%= @counts[:pending_approval] %></div><div class="l"><%= t("orders.statuses.pending_approval") %></div><% end %>
+  <%= link_to admin_orders_path(status: "awaiting_payment"), class: "stat" do %><div class="n"><%= @counts[:awaiting_payment] %></div><div class="l"><%= t("orders.statuses.awaiting_payment") %></div><% end %>
+  <%= link_to admin_orders_path(status: "paid"), class: "stat" do %><div class="n"><%= @counts[:paid] %></div><div class="l"><%= t("orders.statuses.paid") %></div><% end %>
+  <%= link_to admin_orders_path(status: "in_production"), class: "stat" do %><div class="n"><%= @counts[:in_production] %></div><div class="l"><%= t("admin.dashboard.in_production") %></div><% end %>
+  <%= link_to admin_orders_path(status: "in_transit"), class: "stat" do %><div class="n"><%= @counts[:to_ship] %></div><div class="l"><%= t("admin.dashboard.to_ship") %></div><% end %>
+  <%= link_to admin_orders_path(status: "problem"), class: "stat #{'bad' if @counts[:problem] > 0}" do %><div class="n"><%= @counts[:problem] %></div><div class="l"><%= t("orders.statuses.problem") %></div><% end %>
+  <%= link_to admin_reviews_path, class: "stat #{'warn' if @counts[:pending_reviews] > 0}" do %><div class="n"><%= @counts[:pending_reviews] %></div><div class="l"><%= t("admin.dashboard.pending_reviews") %></div><% end %>
+  <%= link_to admin_artwork_index_path, class: "stat #{'warn' if @counts[:artwork_to_enhance] > 0}" do %><div class="n"><%= @counts[:artwork_to_enhance] %></div><div class="l"><%= t("admin.dashboard.artwork_to_enhance") %></div><% end %>
+  <%= link_to admin_conversations_path, class: "stat #{'warn' if @counts[:unread_conversations] > 0}" do %><div class="n"><%= @counts[:unread_conversations] %></div><div class="l"><%= t("admin.dashboard.unread") %></div><% end %>
+  <div class="stat"><div class="n n-money"><%= money(@revenue_30d) %></div><div class="l"><%= t("admin.dashboard.revenue_30d") %></div></div>
+  <% if admin? %><%= link_to admin_templates_path, class: "stat #{'warn' if @counts[:low_stock] > 0}" do %><div class="n"><%= @counts[:low_stock] %></div><div class="l"><%= t("admin.dashboard.low_stock") %></div><% end %><% end %>
+</div>
+<h2><%= t("admin.dashboard.recent_orders") %></h2>
+<%= render "admin/orders/table", orders: @recent_orders %>

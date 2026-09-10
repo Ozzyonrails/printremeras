@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="<%= I18n.locale %>">
+<head>
+  <meta charset="utf-8">
+  <title><%= content_for(:title) || "Admin" %> · <%= Setting.store_name %></title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <%= csrf_meta_tags %>
+  <%= stylesheet_link_tag "admin", "data-turbo-track": "reload" %>
+  <%= yield :head %>
+</head>
+<body class="admin">
+  <% if respond_to?(:current_admin) && current_admin %>
+  <header class="topbar">
+    <button class="menu-toggle" type="button" onclick="document.body.classList.toggle('nav-open')" aria-label="Menu">☰</button>
+    <%= link_to Setting.store_name, admin_root_path, class: "brand" %>
+    <span class="spacer"></span>
+    <%= form_with url: admin_locale_path, method: :patch, class: "locale-switch" do |f| %>
+      <%= f.label :locale, t("admin.locales.label"), class: "sr-only" %>
+      <%= f.select :locale, I18n.available_locales.map { |l| [ t("admin.locales.names.#{l}"), l ] }, { selected: I18n.locale },
+                   class: "input", onchange: "this.form.requestSubmit()", aria: { label: t("admin.locales.label") } %>
+    <% end %>
+    <span class="who"><%= current_admin.name %> · <%= current_admin.role %></span>
+    <%= button_to t("admin.auth.sign_out"), admin_session_path, method: :delete, class: "btn btn-sm" %>
+  </header>
+  <div class="shell">
+    <nav class="sidenav">
+      <%= nav_link t("admin.nav.dashboard"), admin_root_path %>
+      <%= nav_link t("admin.nav.orders"), admin_orders_path %>
+      <%= nav_link t("admin.nav.moderation"), admin_moderation_index_path, count: Order.where(status: "pending_approval").count %>
+      <%= nav_link t("admin.nav.reviews"), admin_reviews_path, count: Review.pending.count %>
+      <%= nav_link t("admin.nav.artwork"), admin_artwork_index_path, count: Design.needing_enhancement.count %>
+      <%= nav_link t("admin.nav.conversations"), admin_conversations_path, count: Conversation.with_unread_for_admin.count %>
+      <%= nav_link t("admin.nav.customers"), admin_customers_path %>
+      <% if admin? %>
+        <div class="nav-section"><%= t("admin.nav.setup") %></div>
+        <%= nav_link t("admin.nav.templates"), admin_templates_path %>
+        <%= nav_link t("admin.nav.catalog"), admin_catalog_items_path %>
+        <%= nav_link t("admin.nav.coupons"), admin_coupons_path %>
+        <%= nav_link t("admin.nav.settings"), admin_settings_path %>
+        <%= nav_link t("admin.nav.audit"), admin_audit_logs_path %>
+        <%= nav_link t("admin.nav.admin_users"), admin_admin_users_path %>
+        <%= nav_link t("admin.nav.jobs"), admin_jobs_path %>
+      <% end %>
+    </nav>
+    <main class="content">
+      <% if notice %><div class="flash flash-notice"><%= notice %></div><% end %>
+      <% if alert %><div class="flash flash-alert"><%= alert %></div><% end %>
+      <%= yield %>
+    </main>
+  </div>
+  <% else %>
+    <main class="content content-plain">
+      <% if notice %><div class="flash flash-notice"><%= notice %></div><% end %>
+      <% if alert %><div class="flash flash-alert"><%= alert %></div><% end %>
+      <%= yield %>
+    </main>
+  <% end %>
+  <%= yield :scripts %>
+</body>
+</html>

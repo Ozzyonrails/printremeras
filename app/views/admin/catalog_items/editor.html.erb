@@ -1,0 +1,15 @@
+<% content_for(:title) { @item.title } %>
+<% content_for(:head) { vite_admin_tags } %>
+<div class="page-head">
+  <h1><%= @item.title %> <% if @item.published? %><span class="badge badge-delivered"><%= t("admin.catalog.published") %></span><% else %><span class="badge"><%= t("admin.catalog.draft") %></span><% end %></h1>
+  <div class="btn-row">
+    <%= link_to t("admin.edit"), edit_admin_catalog_item_path(@item), class: "btn" %>
+    <%= button_to (@item.published? ? t("admin.catalog.unpublish") : t("admin.catalog.publish")), publish_admin_catalog_item_path(@item), params: { published: @item.published? ? "0" : "1" }, class: "btn #{@item.published? ? '' : 'btn-ok'}", form_class: "inline" %>
+  </div>
+</div>
+<p class="muted"><%= t("admin.catalog.editor_hint") %> · <%= money(@item.price_cents) %> · <%= @template.name %></p>
+<% if @item.preview.attached? %><p><%= image_tag rails_representation_path(@item.preview.variant(:card)), class: "thumb-lg", alt: "" %> <span class="small muted"><%= t("admin.catalog.preview_note") %></span></p><% end %>
+<% unless @template.print_areas.any? { |a| a.mockup.attached? } %><div class="flash flash-alert"><%= t("admin.templates.upload_first") %> — <%= link_to @template.name, admin_template_path(@template) %></div><% end %>
+<div data-react="design-editor" data-props="<%= @props.to_json %>" style="min-height:400px">
+  <p class="muted"><%= t("admin.templates.editor_loading") %></p>
+</div>

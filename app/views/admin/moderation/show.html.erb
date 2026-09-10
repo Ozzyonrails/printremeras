@@ -1,0 +1,30 @@
+<% content_for(:title) { "#{t('admin.nav.moderation')} · #{@order.number}" } %>
+<div class="page-head"><h1><%= t("admin.nav.moderation") %> · <%= link_to @order.number, admin_order_path(@order) %></h1></div>
+<p><%= @order.user.full_name %> · <%= @order.user.email %> · <%= money(@order.total_cents) %></p>
+<% @items.each do |item| %>
+  <div class="panel">
+    <h3><%= item.title %> · <%= item.size_label %> · ×<%= item.quantity %></h3>
+    <div style="display:flex;gap:20px;flex-wrap:wrap">
+      <% item.placements.each do |p| %>
+        <div>
+          <div class="small muted" style="margin-bottom:4px"><strong><%= p.print_area.side %></strong> · <%= p.effective_dpi.round %> dpi<% if p.low_quality? %> <span class="warn-text"><%= t("admin.moderation.low_dpi") %></span> <%= button_to t("admin.artwork.request"), enhance_admin_artwork_path(p.design), class: "btn btn-sm", form_class: "inline" %><% end %><% if p.design.enhanced? %> <span class="badge badge-delivered"><%= t("admin.artwork.statuses.done") %></span><% end %> · <%= p.design.width_px %>×<%= p.design.height_px %> px · <%= p.artwork_width_mm.round %>×<%= p.artwork_height_mm.round %> mm</div>
+          <%= placement_preview(p, width: 360) %>
+        </div>
+        <div>
+          <div class="small muted" style="margin-bottom:4px"><%= t("admin.moderation.original") %></div>
+          <%= image_tag rails_blob_path(p.design.file), style: "max-width:360px;max-height:360px;background:repeating-conic-gradient(#eee 0 25%,#fff 0 50%) 0 0/16px 16px;border:1px solid #ddd;border-radius:8px", alt: "" %>
+          <div><%= link_to t("admin.orders.original"), rails_blob_path(p.design.file, disposition: "attachment"), class: "small" %></div>
+        </div>
+      <% end %>
+    </div>
+  </div>
+<% end %>
+<div class="panel">
+  <div class="btn-row">
+    <%= button_to t("admin.moderation.approve"), approve_admin_moderation_path(@order), class: "btn btn-ok", form_class: "inline" %>
+    <%= form_with url: reject_admin_moderation_path(@order), method: :post, class: "btn-row" do |f| %>
+      <%= f.text_field :reason, placeholder: t("admin.moderation.reject_reason"), class: "input", style: "min-width:280px", required: true %>
+      <%= f.submit t("admin.moderation.reject"), class: "btn btn-danger" %>
+    <% end %>
+  </div>
+</div>

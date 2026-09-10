@@ -1,0 +1,26 @@
+<% content_for(:title) { t("admin.nav.reviews") } %>
+<h1><%= t("admin.nav.reviews") %></h1>
+<div class="filters">
+  <% Review::STATUSES.each do |s| %><%= link_to "#{t("reviews.statuses.#{s}")} (#{@counts[s] || 0})", admin_reviews_path(status: s), class: @status == s ? "active" : "" %><% end %>
+</div>
+<div class="grid grid-3">
+<% @reviews.each do |r| %>
+  <div class="panel">
+    <div class="photos" style="grid-template-columns:repeat(3,1fr)">
+      <% r.photos.first(3).each do |p| %><%= link_to admin_review_path(r) do %><%= image_or_placeholder(p, :thumb, alt: "") %><% end %><% end %>
+    </div>
+    <div style="margin-top:8px"><span class="stars"><%= "★" * r.rating %><span style="color:#ddd"><%= "★" * (5 - r.rating) %></span></span> <%= review_badge(r.status) %><% if r.approved? && !r.published? %> <span class="badge"><%= t("admin.reviews.hidden") %></span><% end %></div>
+    <div class="small"><%= r.user.full_name %> · <%= link_to r.order.number, admin_order_path(r.order), class: "mono" %> · <%= l(r.created_at, format: :short) %></div>
+    <% if r.body.present? %><p class="small"><%= truncate(r.body, length: 140) %></p><% end %>
+    <% if r.coupon %><div class="small muted"><%= t("admin.reviews.coupon") %>: <span class="mono"><%= r.coupon.code %></span></div><% end %>
+    <div class="btn-row" style="margin-top:8px">
+      <%= link_to t("admin.reviews.open"), admin_review_path(r), class: "btn btn-sm" %>
+      <% if r.approved? %>
+        <%= button_to (r.published? ? t("admin.reviews.hide") : t("admin.reviews.publish")), admin_review_path(r), method: :patch, params: { published: r.published? ? "0" : "1" }, class: "btn btn-sm", form_class: "inline" %>
+      <% end %>
+    </div>
+  </div>
+<% end %>
+</div>
+<% if @reviews.empty? %><p class="muted"><%= t("admin.none") %></p><% end %>
+<%= pagination %>

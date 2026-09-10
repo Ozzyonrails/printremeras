@@ -1,0 +1,96 @@
+<% content_for(:title) { @order.number } %>
+<div class="page-head">
+  <h1><%= @order.number %> <%= status_badge(@order.status) %></h1>
+  <div class="btn-row">
+    <% if @order.paid_or_later? %>
+      <%= link_to t("admin.orders.download_artwork"), artwork_admin_order_path(@order), class: "btn" %>
+      <%= button_to t("admin.orders.rerender"), rerender_admin_order_path(@order), class: "btn", form_class: "inline" %>
+    <% end %>
+    <% if @conversation %><%= link_to t("admin.nav.conversations"), admin_conversation_path(@conversation), class: "btn" %><% end %>
+  </div>
+</div>
+
+<div class="grid grid-2">
+  <div class="panel">
+    <h2><%= t("admin.orders.customer") %></h2>
+    <dl class="kv">
+      <dt><%= t("admin.orders.customer") %></dt><dd><%= link_to @order.user.full_name, admin_customer_path(@order.user) %> · <%= @order.user.email %><% if @order.user.phone.present? %> · <%= @order.user.phone %><% end %></dd>
+      <dt><%= t("admin.orders.shipping") %></dt><dd><%= t("shipping.methods.#{@order.shipping_method}") %>
+        <% if @order.courier? && @order.shipping_address.present? %><div class="small"><%= @order.shipping_address["recipient_name"] %> · <%= @order.shipping_address["phone"] %><br><%= [ "#{@order.shipping_address['street']} #{@order.shipping_address['number']}", @order.shipping_address["floor"].presence && "Piso #{@order.shipping_address['floor']}", @order.shipping_address["apartment"].presence && "Depto #{@order.shipping_address['apartment']}", @order.shipping_address["neighborhood"], @order.shipping_address["postal_code"] ].compact.join(", ") %><% if @order.shipping_address["notes"].present? %><br><em><%= @order.shipping_address["notes"] %></em><% end %></div><% end %></dd>
+      <dt><%= t("admin.orders.placed") %></dt><dd><%= l(@order.placed_at, format: :long) if @order.placed_at %></dd>
+      <% if @order.customer_notes.present? %><dt><%= t("admin.orders.notes") %></dt><dd><%= simple_format @order.customer_notes %></dd><% end %>
+      <% if @order.rejection_reason.present? %><dt><%= t("admin.orders.rejection_reason") %></dt><dd><%= @order.rejection_reason %></dd><% end %>
+      <% if @order.problem_note.present? %><dt><%= t("orders.statuses.problem") %></dt><dd class="warn-text"><%= @order.problem_note %></dd><% end %>
+    </dl>
+    <h2><%= t("admin.orders.totals") %></h2>
+    <table class="totals">
+      <tr><td><%= t("orders.subtotal") %></td><td><%= money(@order.subtotal_cents) %></td></tr>
+      <% if @order.discount_cents > 0 %><tr><td><%= t("orders.discount") %> (<%= @order.coupon_code %>)</td><td>−<%= money(@order.discount_cents) %></td></tr><% end %>
+      <% if @order.rush %><tr><td><%= t("orders.rush_fee") %></td><td><%= money(@order.rush_fee_cents) %></td></tr><% end %>
+      <tr><td><%= t("orders.shipping_fee") %></td><td><%= money(@order.shipping_fee_cents) %></td></tr>
+      <tr><td><strong><%= t("orders.total") %></strong></td><td><strong><%= money(@order.total_cents) %></strong></td></tr>
+    </table>
+    <h2><%= t("admin.orders.payments") %></h2>
+    <% if @order.payments.any? %>
+      <table class="list"><thead><tr><th>ID</th><th><%= t("admin.orders.status") %></th><th class="num"><%= t("admin.orders.total") %></th><th></th></tr></thead><tbody>
+      <% @order.payments.order(:created_at).each do |p| %>
+        <tr><td class="mono small"><%= p.provider %> <%= p.provider_payment_id || p.external_reference %></td><td><span class="badge"><%= p.status %></span> <span class="small muted"><%= p.flow %></span></td><td class="num"><%= money(p.amount_cents) %></td><td class="small muted"><%= l(p.created_at, format: :short) %></td></tr>
+      <% end %></tbody></table>
+    <% else %><p class="muted"><%= t("admin.none") %></p><% end %>
+  </div>
+
+  <div class="panel">
+    <h2><%= t("admin.orders.actions") %></h2>
+    <% if @next_states.any? %>
+      <% @next_states.each do |s| %>
+        <% next if s == "refunded" %>
+        <%= form_with url: transition_admin_order_path(@order), method: :post, class: "btn-row", style: "margin-bottom:8px" do |f| %>
+          <%= f.hidden_field :to, value: s %>
+          <% if %w[rejected problem cancelled].include?(s) %><%= f.text_field :reason, placeholder: t("admin.orders.reason"), class: "input", style: "max-width:260px", required: s != "cancelled" %><% end %>
+          <%= f.submit "→ #{t("orders.statuses.#{s}")}", class: "btn #{s == 'cancelled' || s == 'rejected' ? 'btn-danger' : (s == 'problem' ? '' : 'btn-primary')}" %>
+        <% end %>
+      <% end %>
+      <% if Orders::Transition.allowed?(@order.status, "refunded") && @order.payments.approved.any? %>
+        <details style="margin-top:10px"><summary><%= t("admin.orders.refund") %></summary>
+          <%= form_with url: refund_admin_order_path(@order), method: :post, class: "btn-row", style: "margin-top:8px" do |f| %>
+            <%= f.text_field :reason, placeholder: t("admin.orders.reason"), class: "input", style: "max-width:260px", required: true %>
+            <%= f.submit t("admin.orders.refund"), class: "btn btn-danger", data: { turbo_confirm: t("admin.confirm") } %>
+          <% end %>
+        </details>
+      <% end %>
+    <% else %><p class="muted"><%= t("admin.orders.terminal") %></p><% end %>
+
+    <h2><%= t("admin.orders.history") %></h2>
+    <ul class="timeline">
+      <% @order.status_transitions.each do |tr| %>
+        <li><span class="when"><%= l(tr.created_at, format: :short) %></span><span><%= tr.from_status && t("orders.statuses.#{tr.from_status}") %> → <strong><%= t("orders.statuses.#{tr.to_status}") %></strong><% if tr.actor %> <span class="muted small">(<%= tr.actor.respond_to?(:name) ? tr.actor.name : tr.actor.email %>)</span><% end %><% if tr.reason.present? %><div class="small"><%= tr.reason %></div><% end %></span></li>
+      <% end %>
+    </ul>
+  </div>
+</div>
+
+<h2><%= t("admin.orders.items") %></h2>
+<% @items.each do |item| %>
+  <div class="panel">
+    <div style="display:flex;gap:16px;flex-wrap:wrap">
+      <div><%= image_or_placeholder(item.preview, :thumb, class: "thumb-lg", alt: "") %></div>
+      <div style="flex:1;min-width:220px">
+        <strong><%= item.title %></strong> · <%= item.size_label %> · <span class="color-dot" style="background:<%= item.snapshot['color_hex'] %>"></span><%= item.snapshot["color_name"] %><br>
+        <%= item.quantity %> × <%= money(item.unit_price_cents) %> = <strong><%= money(item.line_total_cents) %></strong>
+        <span class="badge"><%= item.custom? ? t("admin.orders.custom") : t("admin.orders.catalog") %></span> · <%= t("admin.orders.sides", count: item.sides_count) %>
+        <% if item.print_files.attached? %>
+          <div style="margin-top:8px" class="btn-row">
+            <% item.print_files.each do |f| %><%= link_to "⬇ #{f.filename}", rails_blob_path(f, disposition: "attachment"), class: "btn btn-sm" %><% end %>
+          </div>
+        <% elsif @order.paid_or_later? && (item.custom? || item.catalog_item) %><p class="muted small"><%= t("admin.orders.rendering_pending") %></p><% end %>
+      </div>
+      <% item.placements.each do |p| %>
+        <div>
+          <div class="small muted"><%= p.print_area.side %> · <%= p.effective_dpi.round %> dpi<% if p.low_quality? %> <span class="warn-text">low</span><% end %> · <%= p.design.effective_width_px %>×<%= p.design.effective_height_px %>px<% if p.design.needs_enhancement? %> · <span class="badge badge-pending_approval"><%= t("admin.artwork.statuses.#{p.design.enhancement_status}") %></span><% end %><% if p.design.enhanced? %> · <span class="badge badge-delivered"><%= t("admin.artwork.statuses.done") %></span><% end %></div>
+          <%= placement_preview(p, width: 220) %>
+          <div><%= link_to t("admin.orders.original"), rails_blob_path(p.design.file, disposition: "attachment"), class: "small" %></div>
+        </div>
+      <% end %>
+    </div>
+  </div>
+<% end %>

@@ -1,0 +1,4 @@
+<h1><%= t("mailers.customer.review_approved.title", name: @user.display_name) %></h1>
+<p><%= t("mailers.customer.review_approved.body", percent: @review.coupon&.discount_value || Setting.review_reward_percent) %></p>
+<% if @review.coupon %><p><span class="code"><%= @review.coupon.code %></span></p><p class="muted"><%= t("mailers.customer.review_approved.valid_until", date: l(@review.coupon.valid_until.to_date)) if @review.coupon.valid_until %></p><% end %>
+<p><a class="btn" href="<%= Rails.configuration.x.app.public_url %>"><%= t("mailers.shop_now") %></a></p>

@@ -1,0 +1,40 @@
+<% content_for(:title) { t("admin.nav.artwork") } %>
+<h1><%= t("admin.nav.artwork") %></h1>
+<p class="muted"><%= t("admin.artwork.intro") %></p>
+<div class="filters">
+  <%= link_to t("admin.artwork.needing"), admin_artwork_index_path, class: @status.blank? ? "active" : "" %>
+  <% Design::ENHANCEMENT_STATUSES.each do |s| %>
+    <%= link_to "#{t("admin.artwork.statuses.#{s}")} (#{@counts[s] || 0})", admin_artwork_index_path(status: s), class: @status == s ? "active" : "" %>
+  <% end %>
+</div>
+<div class="grid grid-3">
+<% @designs.each do |design| %>
+  <div class="panel">
+    <%= image_or_placeholder(design.file, :thumb, class: "thumb-lg", alt: "") %>
+    <div style="margin-top:8px">
+      <span class="badge badge-<%= design.enhancement_status == 'done' ? 'delivered' : (design.enhancement_status == 'failed' ? 'problem' : 'pending_approval') %>">
+        <%= t("admin.artwork.statuses.#{design.enhancement_status}") %>
+      </span>
+      <span class="small muted"><%= design.width_px %>×<%= design.height_px %> px<% if design.enhanced? %> → <strong><%= design.enhanced_width_px %>×<%= design.enhanced_height_px %></strong><% end %></span>
+    </div>
+    <% if design.enhancement_note.present? %><p class="small"><%= design.enhancement_note %></p><% end %>
+    <% design.placements.each do |p| %>
+      <div class="small muted">
+        <%= p.print_area.side %> · <%= p.effective_dpi.round %>/<%= p.print_area.effective_min_dpi %> dpi
+        · <%= t("admin.artwork.needs_px", w: p.required_width_px, h: p.required_height_px) %>
+        <% if p.placeable.is_a?(OrderItem) %> · <%= link_to p.placeable.order.number, admin_order_path(p.placeable.order), class: "mono" %><% end %>
+      </div>
+    <% end %>
+    <div class="btn-row" style="margin-top:10px">
+      <%= link_to t("admin.orders.original"), rails_blob_path(design.file, disposition: "attachment"), class: "btn btn-sm" %>
+      <% if design.enhanced? %><%= link_to t("admin.artwork.download_enhanced"), rails_blob_path(design.enhanced_file, disposition: "attachment"), class: "btn btn-sm btn-ok" %><% end %>
+      <% unless design.enhancement_status == "done" %>
+        <%= button_to t("admin.artwork.request"), enhance_admin_artwork_path(design), class: "btn btn-sm btn-primary", form_class: "inline" %>
+        <%= button_to t("admin.artwork.dismiss"), dismiss_admin_artwork_path(design), class: "btn btn-sm", form_class: "inline" %>
+      <% end %>
+    </div>
+  </div>
+<% end %>
+</div>
+<% if @designs.empty? %><p class="muted"><%= t("admin.none") %></p><% end %>
+<%= pagination %>

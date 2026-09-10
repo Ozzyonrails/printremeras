@@ -1,0 +1,14 @@
+<% content_for(:title) { "Fake checkout" } %>
+<div class="panel" style="max-width:560px;margin:40px auto">
+  <h1>🧪 Fake payment gateway</h1>
+  <p>Order <strong class="mono"><%= @order.number %></strong> · <%= money(@payment.amount_cents) %> · payment #<%= @payment.id %> (<%= @payment.flow %>)</p>
+  <p>Order status: <%= status_badge(@order.status) %> · payment status: <span class="badge"><%= @payment.status %></span></p>
+  <div class="btn-row" style="margin:16px 0">
+    <%= button_to "✅ Approve", simulate_dev_payment_path(@payment), params: { status: "approved" }, class: "btn btn-ok", form_class: "inline" %>
+    <%= button_to "❌ Reject", simulate_dev_payment_path(@payment), params: { status: "rejected" }, class: "btn btn-danger", form_class: "inline" %>
+    <%= button_to "⏳ Approve in 10s", simulate_dev_payment_path(@payment), params: { status: "approved", delay: 10 }, class: "btn", form_class: "inline" %>
+    <%= button_to "⚠️ Approve wrong amount", simulate_dev_payment_path(@payment), params: { status: "approved", amount_cents: @payment.amount_cents - 100 }, class: "btn", form_class: "inline" %>
+  </div>
+  <p class="muted small">Webhooks are processed by the background worker (bin/jobs). Duplicated webhooks are ignored via payment_events.</p>
+  <p><a href="/orders/<%= @order.number %>?payment=success" class="btn">Back to the store (success URL)</a> <a href="/orders/<%= @order.number %>?payment=failure" class="btn">failure URL</a></p>
+</div>

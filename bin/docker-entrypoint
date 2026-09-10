@@ -1,0 +1,29 @@
+#!/bin/bash -e
+
+# Thruster listens on HTTP_PORT (default 80) and runs Puma on TARGET_PORT. Platforms like
+# Railway and Render inject PORT and route traffic there, so follow it when the deployment
+# has not set HTTP_PORT itself (docker-compose does, and is left alone).
+if [ -n "${PORT:-}" ] && [ -z "${HTTP_PORT:-}" ]; then
+  export HTTP_PORT="$PORT"
+  export TARGET_PORT="${TARGET_PORT:-3001}"
+  unset PORT
+fi
+
+# Wait for Postgres before touching the app. pg_isready is used rather than booting
+# Rails, so a misconfigured app fails with its own error instead of a timeout here.
+if [ -n "${DATABASE_URL:-}" ]; then
+  for i in $(seq 1 60); do
+    if pg_isready -q -d "${DATABASE_URL}"; then break; fi
+    if [ "$i" -eq 60 ]; then echo "database not reachable at DATABASE_URL after 120s"; exit 1; fi
+    echo "waiting for database ($i)…"
+    sleep 2
+  done
+fi
+
+# The web container prepares the schema (creates the four databases, loads schemas,
+# migrates, and seeds the admin user on first boot). The worker waits for it instead.
+if [ "${@: -2:1}" == "./bin/rails" ] && [ "${@: -1:1}" == "server" ]; then
+  ./bin/rails db:prepare
+fi
+
+exec "${@}"

@@ -1,0 +1,3 @@
+web: bin/rails server -p 3000
+jobs: bin/jobs
+vite: sh -c "cd frontend && npm run dev"

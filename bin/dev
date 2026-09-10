@@ -1,0 +1,7 @@
+#!/usr/bin/env sh
+# Runs Rails, the Solid Queue worker and the Vite dev server together.
+if ! gem list foreman -i --silent; then
+  echo "Installing foreman..."
+  gem install foreman
+fi
+exec foreman start -f Procfile.dev "$@"

@@ -1,0 +1,13 @@
+<% content_for(:title) { t("admin.nav.customers") } %>
+<div class="page-head"><h1><%= t("admin.nav.customers") %></h1>
+  <%= form_with url: admin_customers_path, method: :get, class: "btn-row" do |f| %><%= f.text_field :q, value: params[:q], placeholder: t("admin.search"), class: "input", style: "width:220px" %><%= f.submit t("admin.search"), class: "btn" %><% end %>
+</div>
+<div class="table-wrap"><table class="list">
+  <thead><tr><th><%= t("admin.customers.name") %></th><th>Email</th><th><%= t("admin.customers.locale") %></th><th><%= t("admin.customers.orders") %></th><th><%= t("admin.customers.since") %></th></tr></thead>
+  <tbody>
+  <% @users.each do |u| %>
+    <tr><td><%= link_to u.full_name, admin_customer_path(u) %></td><td><%= u.email %><% unless u.confirmed? %> <span class="badge"><%= t("admin.customers.unconfirmed") %></span><% end %></td><td><%= u.locale %></td><td><%= u.orders.placed.count %></td><td class="small muted"><%= l(u.created_at.to_date) %></td></tr>
+  <% end %>
+  </tbody>
+</table></div>
+<%= pagination %>

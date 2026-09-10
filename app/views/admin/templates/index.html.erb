@@ -1,0 +1,17 @@
+<% content_for(:title) { t("admin.nav.templates") } %>
+<div class="page-head"><h1><%= t("admin.nav.templates") %></h1><%= link_to t("admin.templates.new"), new_admin_template_path, class: "btn btn-primary" %></div>
+<div class="table-wrap"><table class="list">
+  <thead><tr><th></th><th><%= t("admin.templates.name") %></th><th><%= t("admin.templates.color") %></th><th class="num"><%= t("admin.templates.base_price") %></th><th class="num"><%= t("admin.templates.print_1") %></th><th class="num"><%= t("admin.templates.print_2") %></th><th><%= t("admin.templates.stock") %></th><th></th></tr></thead>
+  <tbody>
+  <% @templates.each do |tpl| %>
+    <tr>
+      <td><%= image_or_placeholder((tpl.front_area || tpl.print_areas.first)&.mockup, :thumb, class: "thumb", alt: "") %></td>
+      <td><%= link_to tpl.name, admin_template_path(tpl) %><div class="small muted"><%= tpl.kind %> · <%= tpl.slug %></div></td>
+      <td><span class="color-dot" style="background:<%= tpl.color_hex %>"></span><%= tpl.color_name %></td>
+      <td class="num"><%= money(tpl.base_price_cents) %></td><td class="num"><%= money(tpl.print_price_one_side_cents) %></td><td class="num"><%= money(tpl.print_price_two_sides_cents) %></td>
+      <td class="small"><%= tpl.template_sizes.map { |s| "#{s.label}:#{s.stock}" }.join(" ") %></td>
+      <td><% if tpl.active? %><span class="badge badge-delivered"><%= t("admin.active") %></span><% else %><span class="badge"><%= t("admin.inactive") %></span><% end %><% unless tpl.ready_for_sale? %> <span class="badge badge-problem"><%= t("admin.templates.not_ready") %></span><% end %></td>
+    </tr>
+  <% end %>
+  </tbody>
+</table></div>

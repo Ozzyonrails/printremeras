@@ -1,0 +1,4 @@
+<h1><%= t("mailers.account.confirmation.title", name: @user.display_name) %></h1>
+<p><%= t("mailers.account.confirmation.body") %></p>
+<p><a class="btn" href="<%= @url %>"><%= t("mailers.account.confirmation.cta") %></a></p>
+<p class="muted"><%= @url %></p>

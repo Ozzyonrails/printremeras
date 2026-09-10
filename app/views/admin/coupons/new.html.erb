@@ -1,0 +1,25 @@
+<% content_for(:title) { t("admin.coupons.new") } %>
+<h1><%= t("admin.coupons.new") %></h1>
+<div class="panel" style="max-width:640px">
+<%= form_with model: [ :admin, @coupon ], url: admin_coupons_path do |f| %>
+  <div class="fields-row">
+    <div class="field"><%= f.label :code, t("admin.coupons.code") %><%= f.text_field :code, class: "input", placeholder: t("admin.coupons.auto") %></div>
+    <div class="field"><%= f.label :source, t("admin.coupons.source") %><%= f.select :source, %w[manual campaign], {}, class: "input" %></div>
+  </div>
+  <div class="fields-row">
+    <div class="field"><%= f.label :discount_type, t("admin.coupons.discount_type") %><%= f.select :discount_type, Coupon::DISCOUNT_TYPES, {}, class: "input" %></div>
+    <div class="field"><%= f.label :discount_value, t("admin.coupons.discount_value") %><%= f.number_field :discount_value, class: "input", min: 1 %><div class="hint"><%= t("admin.coupons.value_hint") %></div></div>
+  </div>
+  <div class="fields-row">
+    <div class="field"><%= f.label :max_uses, t("admin.coupons.max_uses") %><%= f.number_field :max_uses, class: "input", min: 1 %></div>
+    <div class="field"><%= f.label :min_order_cents, t("admin.coupons.min_order") %><%= f.number_field :min_order_cents, class: "input", min: 0 %></div>
+  </div>
+  <div class="fields-row">
+    <div class="field"><%= f.label :valid_from, t("admin.coupons.valid_from") %><%= f.datetime_field :valid_from, class: "input" %></div>
+    <div class="field"><%= f.label :valid_until, t("admin.coupons.valid_until") %><%= f.datetime_field :valid_until, class: "input" %></div>
+  </div>
+  <div class="field"><%= label_tag :owner_email, t("admin.coupons.owner_email") %><%= email_field_tag :owner_email, params[:owner_email], class: "input" %><div class="hint"><%= t("admin.coupons.owner_hint") %></div></div>
+  <div class="field"><%= f.label :note, t("admin.coupons.note") %><%= f.text_field :note, class: "input" %></div>
+  <%= f.submit t("admin.save"), class: "btn btn-primary" %>
+<% end %>
+</div>

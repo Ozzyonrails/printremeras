@@ -1,0 +1,56 @@
+# Four logical databases (primary, cache, queue, cable), mirroring the production layout
+# so development behaves like the deployed app. In production only DATABASE_URL is
+# required; the three auxiliary databases default to "<primary>_cache" etc. on the
+# same server (the DB user needs CREATEDB, or pre-create them). Override each with
+# CACHE_DATABASE_URL / QUEUE_DATABASE_URL / CABLE_DATABASE_URL.
+default: &default
+  adapter: postgresql
+  encoding: unicode
+  pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
+  host: <%= ENV.fetch("DATABASE_HOST") { "localhost" } %>
+  port: <%= ENV.fetch("DATABASE_PORT") { 5432 } %>
+  username: <%= ENV["DATABASE_USERNAME"] %>
+  password: <%= ENV["DATABASE_PASSWORD"] %>
+
+<% dev_name = ENV.fetch("DATABASE_NAME") { "printremeras_development" } %>
+development:
+  primary:
+    <<: *default
+    database: <%= dev_name %>
+  cache:
+    <<: *default
+    database: <%= dev_name %>_cache
+    migrations_paths: db/cache_migrate
+  queue:
+    <<: *default
+    database: <%= dev_name %>_queue
+    migrations_paths: db/queue_migrate
+  cable:
+    <<: *default
+    database: <%= dev_name %>_cable
+    migrations_paths: db/cable_migrate
+
+test:
+  <<: *default
+  database: printremeras_test
+
+<%
+  prod_url = ENV.fetch("DATABASE_URL", "")
+  aux_url = ->(suffix, override) { ENV[override].presence || (prod_url.present? ? prod_url.sub(%r{/([^/?]+)(\?.*)?\z}) { "/#{$1}_#{suffix}#{$2}" } : "") }
+%>
+production:
+  primary:
+    <<: *default
+    url: <%= prod_url %>
+  cache:
+    <<: *default
+    url: <%= aux_url.call("cache", "CACHE_DATABASE_URL") %>
+    migrations_paths: db/cache_migrate
+  queue:
+    <<: *default
+    url: <%= aux_url.call("queue", "QUEUE_DATABASE_URL") %>
+    migrations_paths: db/queue_migrate
+  cable:
+    <<: *default
+    url: <%= aux_url.call("cable", "CABLE_DATABASE_URL") %>
+    migrations_paths: db/cable_migrate

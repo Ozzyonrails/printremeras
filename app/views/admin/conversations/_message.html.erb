@@ -1,0 +1,6 @@
+<div class="msg <%= 'mine' if m.from_admin? %>" data-id="<%= m.id %>">
+  <div class="body"><%= simple_format(m.body) if m.body.present? %></div>
+  <% if m.order %><%= link_to admin_order_path(m.order), class: "order-card" do %><% if (u = ::Rendering::Urls.order_preview_url(m.order)) %><img src="<%= u %>" alt=""><% end %><span><strong><%= m.order.number %></strong><br><span class="small muted"><%= t("orders.statuses.#{m.order.status}") %></span></span><% end %><% end %>
+  <% m.attachments.each do |a| %><div><%= link_to a.filename, rails_blob_path(a), target: "_blank" %></div><% end %>
+  <div class="meta"><%= m.from_admin? ? m.sender.name : m.sender.display_name %> · <%= l(m.created_at, format: :short) %></div>
+</div>

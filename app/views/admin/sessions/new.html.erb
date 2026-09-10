@@ -1,0 +1,62 @@
+<div class="login-box">
+  <h1><%= Setting.store_name %> · Admin</h1>
+  <%= form_with url: admin_session_path, method: :post do |f| %>
+    <div class="field"><%= f.label :email, t("admin.auth.email") %><%= f.email_field :email, class: "input", autofocus: true, autocomplete: "username", id: "admin_email" %></div>
+    <div class="field">
+      <%= f.label :password, t("admin.auth.password") %>
+      <div class="password-wrap">
+        <%= f.password_field :password, class: "input", autocomplete: "current-password", id: "admin_password" %>
+        <button type="button" id="toggle-password" class="password-toggle" aria-pressed="false" aria-label="<%= t("admin.auth.show_password") %>" title="<%= t("admin.auth.show_password") %>">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M1.5 12S5 5.5 12 5.5 22.5 12 22.5 12 19 18.5 12 18.5 1.5 12 1.5 12Z"></path>
+            <circle cx="12" cy="12" r="3.2"></circle>
+            <path id="eye-slash" d="m3 3 18 18" hidden></path>
+          </svg>
+        </button>
+      </div>
+    </div>
+    <%= f.submit t("admin.auth.sign_in"), class: "btn btn-primary", style: "width:100%" %>
+  <% end %>
+
+  <% if DevCredentials.enabled? %>
+    <div class="dev-creds">
+      <div class="dev-creds-title"><%= t("admin.auth.dev_accounts") %></div>
+      <% if DevCredentials.forced? %><p class="dev-creds-warning"><%= t("admin.auth.dev_accounts_forced", env: Rails.env) %></p><% end %>
+      <% DevCredentials.staff_list.each do |account| %>
+        <button type="button" class="dev-cred" data-email="<%= account[:email] %>" data-password="<%= account[:password] %>">
+          <span><strong><%= account[:label] %></strong> · <%= account[:email] %></span>
+          <span class="mono small"><%= account[:password] %></span>
+        </button>
+      <% end %>
+      <p class="hint"><%= t("admin.auth.dev_accounts_hint") %></p>
+    </div>
+    <script>
+      document.querySelectorAll(".dev-cred").forEach(function (button) {
+        button.addEventListener("click", function () {
+          document.getElementById("admin_email").value = button.dataset.email;
+          document.getElementById("admin_password").value = button.dataset.password;
+          document.getElementById("admin_password").focus();
+        });
+      });
+    </script>
+  <% end %>
+</div>
+
+<script>
+  (function () {
+    var toggle = document.getElementById("toggle-password");
+    var field = document.getElementById("admin_password");
+    var slash = document.getElementById("eye-slash");
+    if (!toggle || !field) return;
+    toggle.addEventListener("click", function () {
+      var visible = field.type === "text";
+      field.type = visible ? "password" : "text";
+      slash.hidden = visible;
+      toggle.setAttribute("aria-pressed", String(!visible));
+      var label = <%= raw({ show: t("admin.auth.show_password"), hide: t("admin.auth.hide_password") }.to_json) %>;
+      toggle.setAttribute("aria-label", visible ? label.show : label.hide);
+      toggle.setAttribute("title", visible ? label.show : label.hide);
+      field.focus();
+    });
+  })();
+</script>

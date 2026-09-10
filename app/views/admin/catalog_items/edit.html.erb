@@ -1,0 +1,4 @@
+<% content_for(:title) { @item.title } %>
+<div class="page-head"><h1><%= t("admin.edit") %> · <%= @item.title %></h1><%= link_to t("admin.catalog.editor"), editor_admin_catalog_item_path(@item), class: "btn" %></div>
+<div class="panel"><%= render "form", item: @item %></div>
+<div class="panel"><%= button_to t("admin.delete"), admin_catalog_item_path(@item), method: :delete, class: "btn btn-danger", form: { onsubmit: "return confirm('#{t('admin.confirm')}')" } %></div>

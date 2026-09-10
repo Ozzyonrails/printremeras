@@ -1,0 +1,15 @@
+<% content_for(:title) { t("admin.nav.audit") } %>
+<div class="page-head"><h1><%= t("admin.nav.audit") %></h1>
+  <%= form_with url: admin_audit_logs_path, method: :get, class: "btn-row" do |f| %><%= f.text_field :q, value: params[:q], placeholder: "order.status_changed", class: "input", style: "width:240px" %><%= f.submit t("admin.search"), class: "btn" %><% end %>
+</div>
+<div class="table-wrap"><table class="list">
+  <thead><tr><th><%= t("admin.audit.when") %></th><th><%= t("admin.audit.who") %></th><th><%= t("admin.audit.action") %></th><th><%= t("admin.audit.subject") %></th><th><%= t("admin.audit.changes") %></th></tr></thead>
+  <tbody>
+  <% @logs.each do |log| %>
+    <tr><td class="small muted"><%= l(log.created_at, format: :short) %></td><td><%= log.admin_user&.name || "system" %></td><td class="mono small"><%= log.action %></td>
+      <td class="small"><%= log.subject_type %> <%= log.subject.respond_to?(:number) ? log.subject.number : log.subject_id %></td>
+      <td class="small mono"><%= log.change_set.map { |k, v| "#{k}: #{v.is_a?(Array) ? v.join(' → ') : v}" }.join(" · ") %></td></tr>
+  <% end %>
+  </tbody>
+</table></div>
+<%= pagination %>

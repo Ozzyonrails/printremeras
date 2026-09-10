@@ -1,0 +1,27 @@
+<% content_for(:title) { "Review ##{@review.id}" } %>
+<div class="page-head"><h1><%= t("admin.reviews.review") %> · <%= link_to @review.order.number, admin_order_path(@review.order) %> <%= review_badge(@review.status) %></h1></div>
+<div class="panel">
+  <p><strong><%= @review.user.full_name %></strong> · <%= @review.user.email %> · <span class="stars"><%= "★" * @review.rating %></span> · <%= l(@review.created_at, format: :long) %> · <%= t("admin.reviews.submission", n: @review.submission_count) %></p>
+  <p><%= t("admin.reviews.product") %>: <%= @review.order.items.map { |i| "#{i.title} #{i.size_label}" }.join(", ") %></p>
+  <% if @review.body.present? %><blockquote><%= simple_format @review.body %></blockquote><% end %>
+  <% if @review.rejection_reason.present? %><p class="warn-text"><%= t("admin.reviews.rejected_reason") %>: <%= @review.rejection_reason %></p><% end %>
+  <% if @review.coupon %><p><%= t("admin.reviews.coupon") %>: <span class="mono"><%= @review.coupon.code %></span> (<%= @review.coupon.discount_value %>% · <%= @review.coupon.valid_until && l(@review.coupon.valid_until.to_date) %>)</p><% end %>
+</div>
+<div class="photos photos-lg">
+  <% @review.photos.each do |p| %><a href="<%= rails_blob_path(p) %>" target="_blank" rel="noopener"><%= image_or_placeholder(p, :large, alt: "") %></a><% end %>
+</div>
+<% if @review.pending? %>
+<div class="panel" style="margin-top:16px">
+  <div class="btn-row">
+    <%= form_with url: approve_admin_review_path(@review), method: :post, class: "btn-row" do |f| %>
+      <label><%= f.check_box :published, { checked: true }, "1", "0" %> <%= t("admin.reviews.publish_on_site") %></label>
+      <%= f.submit t("admin.reviews.approve_issue"), class: "btn btn-ok" %>
+    <% end %>
+    <%= form_with url: reject_admin_review_path(@review), method: :post, class: "btn-row" do |f| %>
+      <%= f.text_field :reason, placeholder: t("admin.moderation.reject_reason"), class: "input", style: "min-width:260px", required: true %>
+      <%= f.submit t("admin.moderation.reject"), class: "btn btn-danger" %>
+    <% end %>
+  </div>
+  <p class="muted small"><%= t("admin.reviews.reward_hint", percent: Setting.review_reward_percent, days: Setting.review_coupon_days) %></p>
+</div>
+<% end %>

@@ -1,0 +1,8 @@
+<table>
+  <% order.items.each do |i| %><tr><td><%= i.title %> · <%= i.size_label %> × <%= i.quantity %></td><td align="right"><%= money(i.line_total_cents) %></td></tr><% end %>
+  <% if order.discount_cents > 0 %><tr><td><%= t("orders.discount") %></td><td align="right">−<%= money(order.discount_cents) %></td></tr><% end %>
+  <% if order.rush_fee_cents > 0 %><tr><td><%= t("orders.rush_fee") %></td><td align="right"><%= money(order.rush_fee_cents) %></td></tr><% end %>
+  <tr><td><%= t("orders.shipping_fee") %> (<%= t("shipping.methods.#{order.shipping_method}") %>)</td><td align="right"><%= money(order.shipping_fee_cents) %></td></tr>
+  <tr><td><strong><%= t("orders.total") %></strong></td><td align="right"><strong><%= money(order.total_cents) %></strong></td></tr>
+</table>
+<p><a class="btn" href="<%= order_url_for(order) %>"><%= t("mailers.view_order") %></a></p>

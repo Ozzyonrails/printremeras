@@ -1,0 +1,4 @@
+<h1><%= t("mailers.operator.order_problem", number: @order.number) %></h1>
+<p><%= @order.user.full_name %> · <%= @order.user.email %> · <%= money(@order.total_cents) %> · <%= t("shipping.methods.#{@order.shipping_method}") %><% if @order.custom? %> · custom<% end %></p>
+<% if @order.problem_note.present? %><p><strong><%= @order.problem_note %></strong></p><% end %>
+<p><a class="btn" href="<%= admin_order_url_for(@order) %>">Admin</a></p>
