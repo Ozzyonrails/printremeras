@@ -93,6 +93,20 @@ details summary { cursor:pointer; font-weight:600; }
   body.nav-open .sidenav { transform:none; box-shadow: 0 0 0 100vw rgba(0,0,0,.35); }
   .content { padding:12px; } .topbar .who { display:none; }
   .kv { grid-template-columns: 1fr; }
+  /* iOS Safari zooms the page whenever a focused field is under 16px, which throws the
+     layout around and makes forms feel broken on a phone. */
+  .input, select.input, textarea.input { font-size:16px; }
+}
+
+@media (max-width: 560px) {
+  /* One field per row: two 160px columns plus a gap no longer fit, and the second column
+     was being pushed under the viewport edge. */
+  .fields-row { grid-template-columns: 1fr; }
+  .btn-row { gap:6px; }
+  .btn { width:100%; justify-content:center; }
+  .btn-row .btn { width:auto; flex:1 1 auto; }
+  .panel { padding:12px; }
+  h1 { font-size:19px; }
 }
 
 /* Development-only sign-in shortcuts (see DevCredentials). */
