@@ -169,6 +169,15 @@ and run inside the worker. Failed jobs are visible (and retryable) in Admin → 
 
 Health check: `GET /up`. Logs go to stdout (`RAILS_LOG_LEVEL`).
 
+### Continuous integration and GitLab
+
+`.gitlab-ci.yml` runs the Rails suite and the frontend build on every push. Railway has no
+native GitLab integration, so deployment happens through its CLI: add the `RAILWAY_TOKEN`
+and `RAILWAY_SERVICE` CI/CD variables and trigger the `deploy:railway` job, which is manual
+until you choose otherwise. The alternative is mirroring the repository to GitHub
+(GitLab → Settings → Repository → Mirroring repositories) and letting Railway watch that,
+which gives automatic deploys and one-click rollbacks with no pipeline to maintain.
+
 ### Deploying without Docker
 Any Ruby host works: `bundle install --without development test`, `cd frontend && npm ci && npm run build`,
 `bin/rails assets:precompile`, `bin/rails db:prepare`, run `bin/thrust bin/rails server` and `bin/jobs`.

@@ -1,0 +1,71 @@
+# Runs the test suite on every push, and deploys to Railway from main.
+#
+# Railway has no native GitLab integration, so deployment goes through its CLI.
+# Set these CI/CD variables (Settings -> CI/CD -> Variables), both masked:
+#   RAILWAY_TOKEN    a project token from Railway (Project Settings -> Tokens)
+#   RAILWAY_SERVICE  the name of the web service, e.g. "web"
+# The deploy job is manual by default so a push never surprises production;
+# delete `when: manual` once you trust it.
+
+stages:
+  - test
+  - deploy
+
+variables:
+  POSTGRES_DB: printremeras_test
+  POSTGRES_USER: runner
+  POSTGRES_PASSWORD: runner
+  POSTGRES_HOST_AUTH_METHOD: trust
+  DATABASE_HOST: postgres
+  DATABASE_USERNAME: runner
+  DATABASE_PASSWORD: runner
+  RAILS_ENV: test
+
+test:rails:
+  stage: test
+  image: ruby:3.2
+  services:
+    - name: postgres:16-alpine
+      alias: postgres
+  cache:
+    key:
+      files:
+        - Gemfile.lock
+    paths:
+      - vendor/bundle
+  before_script:
+    # libvips is required: the renderers and image checks call it directly.
+    - apt-get update -qq && apt-get install -y --no-install-recommends libvips postgresql-client
+    - bundle config set --local path vendor/bundle
+    - bundle install --jobs 4
+  script:
+    - bin/rails db:prepare
+    - bin/rails test
+    - bin/rails zeitwerk:check
+
+test:frontend:
+  stage: test
+  image: node:20
+  cache:
+    key:
+      files:
+        - frontend/package-lock.json
+    paths:
+      - frontend/node_modules
+  script:
+    - cd frontend
+    - npm ci --no-audit --no-fund
+    # tsc runs as part of the build, so a type error fails the pipeline.
+    - npm run build
+
+deploy:railway:
+  stage: deploy
+  image: node:20-alpine
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main"
+      when: manual
+  script:
+    - npm i -g @railway/cli
+    - railway up --service "$RAILWAY_SERVICE" --detach
+  environment:
+    name: production
