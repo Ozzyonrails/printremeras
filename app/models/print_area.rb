@@ -19,6 +19,16 @@ class PrintArea < ApplicationRecord
   scope :ordered, -> { order(Arel.sql("CASE side WHEN 'front' THEN 0 ELSE 1 END")) }
 
   def effective_min_dpi = min_dpi.presence || Setting.min_dpi
+
+  # True when the photo is both attached and actually present in the bucket. A record can
+  # outlive its object (an upload that failed halfway, a bucket wiped by hand), and the
+  # admin should be told to re-upload rather than shown a broken image.
+  def mockup_available?
+    return @mockup_available if defined?(@mockup_available)
+    @mockup_available = mockup.attached? && mockup.blob.service.exist?(mockup.blob.key)
+  rescue StandardError
+    @mockup_available = false
+  end
   def aspect_mm = width_mm.to_f / height_mm.to_f
 
   # Pixel aspect ratio of the drawn rectangle on the mockup, used to warn admins when

@@ -16,6 +16,19 @@ module Catalog
       @print_area.mockup.attach(@file)
       @print_area.mockup_width_px = image.width
       @print_area.mockup_height_px = image.height
+
+      # On a new record Active Storage defers the upload until save, so the object only
+      # exists afterwards. Save first, then confirm the bytes really landed: the blob row is
+      # written before the upload, and a storage failure used to leave a record pointing at
+      # nothing while the admin saw a broken image.
+      @print_area.save
+      if @print_area.persisted?
+        blob = @print_area.mockup.blob
+        unless blob.service.exist?(blob.key)
+          return failure([ I18n.t("admin.templates.mockup_not_stored") ], code: :storage)
+        end
+      end
+
       success(attached: true, width: image.width, height: image.height)
     rescue Vips::Error => e
       failure([ I18n.t("admin.templates.mockup_unreadable", message: e.message.to_s.lines.first.to_s.strip) ], code: :invalid)

@@ -44,7 +44,9 @@
           </div>
         </div>
         <div class="area-editor">
-          <% if area.mockup.attached? %>
+          <% if area.mockup.attached? && !area.mockup_available? %>
+            <div class="flash flash-alert"><%= t("admin.templates.mockup_missing") %></div>
+          <% elsif area.mockup.attached? %>
             <div data-react="print-area-editor" data-props="<%= { mockupUrl: rails_representation_path(area.mockup.variant(:editor)), area: { x: area.x.to_f, y: area.y.to_f, w: area.w.to_f, h: area.h.to_f, width_mm: area.width_mm.to_f, height_mm: area.height_mm.to_f }, fieldPrefix: "print_area" }.to_json %>">
               <%= image_tag rails_representation_path(area.mockup.variant(:editor)), style: "max-width:100%", alt: "" %>
               <p class="muted small"><%= t("admin.templates.editor_loading") %></p>
