@@ -1,7 +1,17 @@
 <%= form_with model: [ :admin, item ] do |f| %>
   <% if item.errors.any? %><div class="flash flash-alert"><%= item.errors.full_messages.join(", ") %></div><% end %>
   <div class="fields-row">
-    <div class="field"><%= f.label :template_id, t("admin.templates.name") %><%= f.collection_select :template_id, @templates, :id, ->(t) { "#{t.name} · #{t.color_name}" }, {}, class: "input" %></div>
+    <div class="field">
+      <%= f.label :template_id, t("admin.catalog.template") %>
+      <% if @templates.any? %>
+        <%= f.collection_select :template_id, @templates, :id, ->(t) { "#{t.name} · #{t.color_name}" }, {}, class: "input" %>
+        <div class="hint"><%= t("admin.catalog.template_hint") %></div>
+      <% else %>
+        <div class="flash flash-alert" style="margin:0">
+          <%= t("admin.catalog.no_templates") %> <%= link_to t("admin.templates.new"), new_admin_template_path %>
+        </div>
+      <% end %>
+    </div>
     <div class="field"><%= f.label :slug, "Slug" %><%= f.text_field :slug, class: "input" %></div>
     <div class="field"><%= f.label :price_cents, t("admin.catalog.price") %><%= f.number_field :price_cents, class: "input", min: 0 %><div class="hint"><%= t("admin.cents_hint") %></div></div>
     <div class="field"><%= f.label :position, t("admin.position") %><%= f.number_field :position, class: "input" %></div>

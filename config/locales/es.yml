@@ -367,6 +367,9 @@ es:
       restock_at: "Reposición"
       add_size: "Agregar"
     catalog:
+      template: "Prenda"
+      template_hint: "El producto se arma sobre esta prenda: hereda su foto, su área de impresión y sus talles."
+      no_templates: "Todavía no hay prendas. Un producto del catálogo se arma sobre una prenda, así que creá una primero."
       new: "Nuevo producto"
       new_from_template: "Crear producto"
       title: "Título"
