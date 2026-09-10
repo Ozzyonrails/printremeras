@@ -13,7 +13,6 @@
       <% end %>
     </div>
     <div class="field"><%= f.label :price_cents, t("admin.catalog.price") %><%= f.number_field :price_cents, class: "input", min: 0 %><div class="hint"><%= t("admin.cents_hint") %></div></div>
-    <div class="field"><%= f.label :position, t("admin.position") %><%= f.number_field :position, class: "input" %></div>
   </div>
   <% loc = I18n.default_locale.to_s %>
   <div class="field">

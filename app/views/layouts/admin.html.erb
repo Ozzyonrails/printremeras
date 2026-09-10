@@ -41,6 +41,7 @@
         <%= nav_link t("admin.nav.coupons"), admin_coupons_path %>
         <%= nav_link t("admin.nav.settings"), admin_settings_path %>
         <%= nav_link t("admin.nav.audit"), admin_audit_logs_path %>
+        <%= nav_link t("admin.nav.help"), admin_help_path %>
         <%= nav_link t("admin.nav.admin_users"), admin_admin_users_path %>
         <%= nav_link t("admin.nav.jobs"), admin_jobs_path %>
       <% end %>
@@ -58,6 +59,16 @@
       <%= yield %>
     </main>
   <% end %>
+  <script>
+    // A row or card marked data-href behaves like a link, except when the tap landed on a
+    // real control inside it (a link, a button, a form field).
+    document.addEventListener("click", function (event) {
+      var holder = event.target.closest("[data-href]");
+      if (!holder) return;
+      if (event.target.closest("a, button, input, select, textarea, label, form")) return;
+      window.location = holder.dataset.href;
+    });
+  </script>
   <%= yield :scripts %>
 </body>
 </html>

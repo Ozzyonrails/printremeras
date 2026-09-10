@@ -1,10 +1,11 @@
 <% content_for(:title) { t("admin.nav.catalog") } %>
 <div class="page-head"><h1><%= t("admin.nav.catalog") %></h1><%= link_to t("admin.catalog.new"), new_admin_catalog_item_path, class: "btn btn-primary" %></div>
+<p class="muted"><%= t("admin.catalog.intro") %></p>
 <div class="table-wrap"><table class="list">
   <thead><tr><th></th><th><%= t("admin.catalog.title") %></th><th><%= t("admin.templates.name") %></th><th class="num"><%= t("admin.catalog.price") %></th><th>Tags</th><th></th><th></th></tr></thead>
   <tbody>
   <% @items.each do |item| %>
-    <tr>
+    <tr class="row-link" data-href="<%= editor_admin_catalog_item_path(item) %>">
       <td><%= image_or_placeholder(item.preview, :card, class: "thumb", alt: "") %></td>
       <td><%= link_to item.title, editor_admin_catalog_item_path(item) %><div class="small muted"><%= item.slug %></div></td>
       <td><%= item.template.name %></td>

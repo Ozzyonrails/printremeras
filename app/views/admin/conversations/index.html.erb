@@ -4,7 +4,7 @@
   <thead><tr><th><%= t("admin.orders.customer") %></th><th><%= t("admin.conversations.last") %></th><th><%= t("admin.conversations.unread") %></th></tr></thead>
   <tbody>
   <% @conversations.each do |c| %>
-    <tr><td><%= link_to c.user.full_name, admin_conversation_path(c) %><div class="small muted"><%= c.user.email %></div></td><td class="small muted"><%= c.last_message_at ? l(c.last_message_at, format: :short) : "—" %></td><td><% if c.unread_for_admin > 0 %><span class="nav-count"><%= c.unread_for_admin %></span><% end %></td></tr>
+    <tr class="row-link" data-href="<%= admin_conversation_path(c) %>"><td><%= link_to c.user.full_name, admin_conversation_path(c) %><div class="small muted"><%= c.user.email %></div></td><td class="small muted"><%= c.last_message_at ? l(c.last_message_at, format: :short) : "—" %></td><td><% if c.unread_for_admin > 0 %><span class="nav-count"><%= c.unread_for_admin %></span><% end %></td></tr>
   <% end %>
   <% if @conversations.empty? %><tr><td colspan="3" class="muted"><%= t("admin.none") %></td></tr><% end %>
   </tbody>

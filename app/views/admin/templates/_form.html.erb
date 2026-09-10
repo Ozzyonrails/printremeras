@@ -1,34 +1,50 @@
 <%= form_with model: [ :admin, template ] do |f| %>
   <% if template.errors.any? %><div class="flash flash-alert"><%= template.errors.full_messages.join(", ") %></div><% end %>
-  <div class="fields-row">
-    <div class="field"><%= f.label :kind, t("admin.templates.kind") %><%= f.select :kind, ::Template::KINDS, {}, class: "input" %></div>
-    <div class="field"><%= f.label :position, t("admin.position") %><%= f.number_field :position, class: "input" %></div>
-  </div>
   <% loc = I18n.default_locale.to_s %>
+
   <div class="field">
     <%= label_tag "template_name_translations_#{loc}", t("admin.templates.name") %>
-    <%= text_field_tag "template[name_translations][#{loc}]", template.name_translations[loc], class: "input", id: "template_name_translations_#{loc}" %>
+    <%= text_field_tag "template[name_translations][#{loc}]", template.name_translations[loc], class: "input", id: "template_name_translations_#{loc}", autofocus: template.new_record? %>
   </div>
+
+  <div class="fields-row">
+    <div class="field">
+      <%= f.label :kind, t("admin.templates.kind") %>
+      <%= f.select :kind, ::Template::KINDS.map { |k| [ t("admin.templates.kinds.#{k}", default: k), k ] }, {}, class: "input" %>
+    </div>
+    <div class="field">
+      <%= f.label :color_hex, t("admin.templates.color") %>
+      <%= f.select :color_hex, ::Template::PALETTE.map { |key, hex| [ t("colors.#{key}"), hex ] }, { include_blank: false }, class: "input" %>
+    </div>
+  </div>
+
+  <div class="field">
+    <%= f.label :color_name, t("admin.templates.color_name") %>
+    <%= f.text_field :color_name, class: "input", placeholder: t("admin.templates.color_name_placeholder") %>
+    <div class="hint"><%= t("admin.templates.color_name_hint") %></div>
+  </div>
+
   <div class="field">
     <%= label_tag "template_description_translations_#{loc}", t("admin.templates.description") %>
     <%= text_area_tag "template[description_translations][#{loc}]", template.description_translations[loc], class: "input", rows: 2, id: "template_description_translations_#{loc}" %>
   </div>
-  <div class="fields-row">
-    <div class="field"><%= f.label :color_name, t("admin.templates.color") %><%= f.text_field :color_name, class: "input" %></div>
-    <div class="field"><%= f.label :color_hex, "Hex" %><%= f.color_field :color_hex, class: "input" %></div>
-  </div>
-  <div class="fields-row">
-    <div class="field"><%= f.label :base_price_cents, t("admin.templates.base_price") %><%= f.number_field :base_price_cents, class: "input", min: 0 %><div class="hint"><%= t("admin.cents_hint") %></div></div>
-    <div class="field"><%= f.label :print_price_one_side_cents, t("admin.templates.print_1") %><%= f.number_field :print_price_one_side_cents, class: "input", min: 0 %></div>
-    <div class="field"><%= f.label :print_price_two_sides_cents, t("admin.templates.print_2") %><%= f.number_field :print_price_two_sides_cents, class: "input", min: 0 %></div>
-  </div>
-  <% unless template.persisted? %>
+
+  <% if template.new_record? %>
     <div class="field">
       <%= label_tag :front_mockup, t("admin.templates.mockup_front") %>
       <%= file_field_tag :front_mockup, accept: "image/png,image/jpeg,image/webp", class: "input" %>
       <div class="hint"><%= t("admin.templates.mockup_front_hint") %></div>
     </div>
+  <% else %>
+    <h3><%= t("admin.templates.pricing") %></h3>
+    <p class="hint"><%= t("admin.templates.pricing_hint") %></p>
+    <div class="fields-row">
+      <div class="field"><%= f.label :base_price_cents, t("admin.templates.base_price") %><%= f.number_field :base_price_cents, class: "input", min: 0 %><div class="hint"><%= t("admin.cents_hint") %></div></div>
+      <div class="field"><%= f.label :print_price_one_side_cents, t("admin.templates.print_1") %><%= f.number_field :print_price_one_side_cents, class: "input", min: 0 %></div>
+      <div class="field"><%= f.label :print_price_two_sides_cents, t("admin.templates.print_2") %><%= f.number_field :print_price_two_sides_cents, class: "input", min: 0 %></div>
+    </div>
   <% end %>
-  <div class="field"><label><%= f.check_box :active %> <%= t("admin.active") %></label></div>
+
+  <div class="field"><label><%= f.check_box :active %> <%= t("admin.templates.active_hint") %></label></div>
   <%= f.submit t("admin.save"), class: "btn btn-primary" %>
 <% end %>

@@ -113,6 +113,7 @@ Rails.application.routes.draw do
     resources :conversations, only: %i[index show] do
       resources :messages, only: :create
     end
+    resource :help, only: :show, controller: :help
     resource :settings, only: %i[show update]
     resources :audit_logs, only: :index
     resources :admin_users, only: %i[index new create edit update]

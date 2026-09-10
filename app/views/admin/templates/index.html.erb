@@ -1,10 +1,11 @@
 <% content_for(:title) { t("admin.nav.templates") } %>
 <div class="page-head"><h1><%= t("admin.nav.templates") %></h1><%= link_to t("admin.templates.new"), new_admin_template_path, class: "btn btn-primary" %></div>
+<p class="muted"><%= t("admin.templates.intro") %></p>
 <div class="table-wrap"><table class="list">
   <thead><tr><th></th><th><%= t("admin.templates.name") %></th><th><%= t("admin.templates.color") %></th><th class="num"><%= t("admin.templates.base_price") %></th><th class="num"><%= t("admin.templates.print_1") %></th><th class="num"><%= t("admin.templates.print_2") %></th><th><%= t("admin.templates.stock") %></th><th></th></tr></thead>
   <tbody>
   <% @templates.each do |tpl| %>
-    <tr>
+    <tr class="row-link" data-href="<%= admin_template_path(tpl) %>">
       <td><%= image_or_placeholder((tpl.front_area || tpl.print_areas.first)&.mockup, :thumb, class: "thumb", alt: "") %></td>
       <td><%= link_to tpl.name, admin_template_path(tpl) %><div class="small muted"><%= tpl.kind %> · <%= tpl.slug %></div></td>
       <td><span class="color-dot" style="background:<%= tpl.color_hex %>"></span><%= tpl.color_name %></td>

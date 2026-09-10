@@ -1,0 +1,31 @@
+<% content_for(:title) { t("admin.nav.help") } %>
+<h1><%= t("admin.nav.help") %></h1>
+
+<div class="panel" style="max-width:760px">
+  <h2><%= t("admin.help.template_title") %></h2>
+  <p><%= t("admin.help.template_body") %></p>
+  <ul>
+    <li><%= t("admin.help.template_photo") %></li>
+    <li><%= t("admin.help.template_area") %></li>
+    <li><%= t("admin.help.template_sizes") %></li>
+    <li><%= t("admin.help.template_prices") %></li>
+  </ul>
+
+  <h2><%= t("admin.help.product_title") %></h2>
+  <p><%= t("admin.help.product_body") %></p>
+
+  <h2><%= t("admin.help.flow_title") %></h2>
+  <ol>
+    <li><%= t("admin.help.flow_1") %> <%= link_to t("admin.templates.new"), new_admin_template_path %></li>
+    <li><%= t("admin.help.flow_2") %></li>
+    <li><%= t("admin.help.flow_3") %></li>
+    <li><%= t("admin.help.flow_4") %> <%= link_to t("admin.catalog.new"), new_admin_catalog_item_path %></li>
+    <li><%= t("admin.help.flow_5") %></li>
+  </ol>
+
+  <h2><%= t("admin.help.custom_title") %></h2>
+  <p><%= t("admin.help.custom_body") %></p>
+
+  <h2><%= t("admin.help.money_title") %></h2>
+  <p><%= t("admin.help.money_body") %></p>
+</div>

@@ -2,7 +2,7 @@
   <thead><tr><th><%= t("admin.orders.number") %></th><th><%= t("admin.orders.customer") %></th><th><%= t("admin.orders.status") %></th><th><%= t("admin.orders.shipping") %></th><th class="num"><%= t("admin.orders.total") %></th><th><%= t("admin.orders.placed") %></th></tr></thead>
   <tbody>
     <% orders.each do |o| %>
-      <tr>
+      <tr class="row-link" data-href="<%= admin_order_path(o) %>">
         <td><%= link_to o.number, admin_order_path(o), class: "mono" %><% if o.custom? %> <span class="badge">custom</span><% end %></td>
         <td><%= link_to o.user.full_name, admin_customer_path(o.user) %><div class="small muted"><%= o.user.email %></div></td>
         <td><%= status_badge(o.status) %></td>

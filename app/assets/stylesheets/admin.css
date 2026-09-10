@@ -133,3 +133,9 @@ details summary { cursor:pointer; font-weight:600; }
 .password-toggle { position:absolute; right:0; top:0; height:100%; width:44px; display:flex; align-items:center; justify-content:center;
   background:none; border:0; cursor:pointer; color:var(--muted); border-radius:0 8px 8px 0; }
 .password-toggle:hover, .password-toggle:focus-visible { color:var(--text); }
+
+/* Whole rows and cards are tappable, not just the link inside them: on a phone hitting a
+   short text link is fiddly. The link stays for keyboard and middle-click. */
+tr.row-link, .card-link { cursor:pointer; }
+tr.row-link:hover, .card-link:hover { background:#f6f8ff; }
+.card-link:focus-within { outline:2px solid var(--accent-2); outline-offset:2px; }

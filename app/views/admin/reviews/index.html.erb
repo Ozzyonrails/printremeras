@@ -5,7 +5,7 @@
 </div>
 <div class="grid grid-3">
 <% @reviews.each do |r| %>
-  <div class="panel">
+  <div class="panel card-link" data-href="<%= admin_review_path(r) %>">
     <div class="photos" style="grid-template-columns:repeat(3,1fr)">
       <% r.photos.first(3).each do |p| %><%= link_to admin_review_path(r) do %><%= image_or_placeholder(p, :thumb, alt: "") %><% end %><% end %>
     </div>

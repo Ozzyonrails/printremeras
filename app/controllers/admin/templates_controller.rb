@@ -69,7 +69,7 @@ module Admin
     end
 
     def template_params
-      p = params.require(:template).permit(:kind, :color_name, :color_hex, :base_price_cents, :print_price_one_side_cents, :print_price_two_sides_cents, :active, :position,
+      p = params.require(:template).permit(:kind, :color_name, :color_hex, :base_price_cents, :print_price_one_side_cents, :print_price_two_sides_cents, :active,
                                            name_translations: I18n.available_locales, description_translations: I18n.available_locales)
       p
     end
