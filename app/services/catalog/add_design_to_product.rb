@@ -31,7 +31,7 @@ module Catalog
 
       AuditLog.record!(action: "catalog_item.design_added", admin_user: @admin, subject: @item,
                        change_set: { "design_id" => design.id, "side" => area.side })
-      Rendering::RenderCatalogPreviewJob.perform_later(@item.id)
+      Rendering::RenderCatalogPreview.call(catalog_item: @item.reload)
       success(design: design, placement: placement)
     end
 

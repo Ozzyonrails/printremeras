@@ -38,6 +38,27 @@ class ProductCreationTest < ActionDispatch::IntegrationTest
     assert placement.within_area?, "and sitting inside the print area"
   end
 
+  test "the product picture is composited immediately, without waiting for a worker" do
+    # Customers see this picture in the catalogue; queuing it meant products showed the bare
+    # garment until a background worker happened to be running.
+    create_product
+    item = CatalogItem.order(:id).last
+    assert item.preview.attached?, "the composite must exist as soon as the product does"
+    assert_operator item.preview.blob.byte_size, :>, 0
+    assert_equal "image/jpeg", item.preview.blob.content_type
+  end
+
+  test "publishing repairs a product whose picture is missing" do
+    create_product
+    item = CatalogItem.order(:id).last
+    item.preview.purge
+    assert_not item.reload.preview.attached?
+
+    post "/admin/catalog_items/#{item.id}/publish", params: { published: "1" }
+    assert item.reload.preview.attached?, "publishing must not put a pictureless product on sale"
+    assert item.published?
+  end
+
   test "a tall design is scaled down so it still fits the area" do
     create_product(file: png_file(800, 2400, name: "tall.png"))
     placement = CatalogItem.order(:id).last.placements.first

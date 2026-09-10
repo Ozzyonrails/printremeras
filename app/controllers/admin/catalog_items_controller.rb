@@ -69,6 +69,9 @@ module Admin
         return redirect_to(editor_admin_catalog_item_path(@item), alert: t("admin.catalog.no_placements")) if @item.placements.empty?
       end
       @item.update!(published: publishing)
+      # Older products may predate inline rendering, or a render may have failed; make sure
+      # anything going on sale carries its picture.
+      Rendering::RenderCatalogPreview.call(catalog_item: @item) if publishing && !@item.preview.attached?
       audit!("catalog_item.published_changed", @item, { "published" => publishing })
       redirect_to admin_catalog_items_path, notice: t("admin.saved")
     end

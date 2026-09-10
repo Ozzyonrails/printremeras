@@ -21,7 +21,7 @@ module Catalog
         end
       end
       AuditLog.record!(action: "catalog_item.saved", admin_user: @admin, subject: @item, change_set: @item.saved_changes.except("updated_at"))
-      Rendering::RenderCatalogPreviewJob.perform_later(@item.id) if built
+      Rendering::RenderCatalogPreview.call(catalog_item: @item.reload) if built
       success(catalog_item: @item)
     end
   end
