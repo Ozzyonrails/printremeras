@@ -33,7 +33,7 @@ gem "rack-cors"
 gem "rack-attack"
 gem "rqrcode"
 gem "rails-i18n"
-gem "json", "~> 2.10"
+gem "json", "~> 3.0"
 
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
 gem "tzinfo-data", platforms: %i[ windows jruby ]
